@@ -1,0 +1,134 @@
+{
+  "extends" : "thirdParty.api",
+  "abstract" : false,
+  "root" : "https://phosom-server.appspot.com/_ah/api",
+  "name" : "gamefactory",
+  "version" : "v1",
+  "defaultVersion" : false,
+  "adapter" : {
+    "bns" : "https://phosom-server.appspot.com/_ah/spi",
+    "deadline" : 10.0,
+    "type" : "lily"
+  },
+  "auth" : {
+    "allowCookieAuth" : false
+  },
+  "frontendLimits" : {
+    "unregisteredUserQps" : -1,
+    "unregisteredQps" : -1,
+    "unregisteredDaily" : -1,
+    "rules" : [ ]
+  },
+  "cacheControl" : {
+    "type" : "no-cache",
+    "maxAge" : 0
+  },
+  "methods" : {
+    "gamefactory.createGame" : {
+      "path" : "createGame/{type}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameFactoryEndpoint.createGame",
+      "request" : {
+        "parameters" : {
+          "type" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "gamefactory.gameFactoryEndpoint.addPlayerToGame" : {
+      "path" : "addPlayerToGame/{gameId}/{playerId}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameFactoryEndpoint.addPlayerToGame",
+      "request" : {
+        "parameters" : {
+          "gameId" : {
+            "type" : "int64",
+            "required" : true
+          },
+          "playerId" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    }
+  },
+  "descriptor" : {
+    "schemas" : {
+      "Game" : {
+        "id" : "Game",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "challenges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Challenge"
+            }
+          }
+        }
+      },
+      "Challenge" : {
+        "id" : "Challenge",
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "assignmentBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "responseBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "points" : {
+            "type" : "integer"
+          }
+        }
+      },
+      "BlobKey" : {
+        "id" : "BlobKey",
+        "type" : "object",
+        "properties" : {
+          "keyString" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "methods" : {
+      "net.nemur.phosom.model.GameFactoryEndpoint.createGame" : {
+        "response" : {
+          "$ref" : "Game"
+        }
+      },
+      "net.nemur.phosom.model.GameFactoryEndpoint.addPlayerToGame" : {
+        "response" : {
+          "$ref" : "Game"
+        }
+      }
+    }
+  }
+}

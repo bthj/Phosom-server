@@ -1,5 +1,6 @@
 package net.nemur.phosom.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -34,14 +35,10 @@ public class Game {
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Long id;
 	
-	@Nullable
-	@Persistent
-	@ElementCollection
-	private List<Long> players;
 	
 	@Nullable
-	@Persistent
-	@Embedded
+	@Persistent(embeddedElement = "true", defaultFetchGroup = "true") // as in http://stackoverflow.com/a/7095821/169858
+//	@Embedded //DataNucleus complains about this
 	private List<Challenge> challenges;
 	
 	
@@ -54,13 +51,11 @@ public class Game {
 		return id;
 	}
 	
-	public List<Long> getPlayers() {
-		return players;
-	}
-	public void setPlayers(List<Long> players) {
-		this.players = players;
-	}
+
 	public List<Challenge> getChallenges() {
+		if( null == challenges ) {
+			challenges = new ArrayList<Challenge>();
+		}
 		return challenges;
 	}
 	public void setChallenges(List<Challenge> challenges) {

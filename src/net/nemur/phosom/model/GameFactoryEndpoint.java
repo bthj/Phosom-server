@@ -16,9 +16,7 @@ import com.google.api.server.spi.config.ApiMethod;
 public class GameFactoryEndpoint {
 
 	@ApiMethod(name = "createGame", httpMethod = "POST")
-	public Game createGame( 
-			@Named("type") String type, 
-			@Nullable @Named("players") Player[] players ) {
+	public Game createGame( @Named("type") String type ) {
 		
 		Game gameToCreate = null;
 		
@@ -45,23 +43,30 @@ public class GameFactoryEndpoint {
 			break;
 		}
 
-		Challenge challenge = new Challenge();
-		for( Player onePlayer : players ) {
-			gameToCreate.getPlayers().add( onePlayer.getKey().getId() );
-			
-			Assignment assignment = new Assignment();
-			assignment.setPlayer( onePlayer );
-			challenge.getAssignments().add(assignment);
-		}
-		gameToCreate.getChallenges().add(challenge);
+//		Challenge challenge = new Challenge();
+//		for( Player onePlayer : players ) {
+//			gameToCreate.getPlayers().add( onePlayer.getKey().getId() );
+//			
+//			Assignment assignment = new Assignment();
+//			assignment.setPlayer( onePlayer );
+//			challenge.getAssignments().add(assignment);
+//		}
+//		gameToCreate.getChallenges().add(challenge);
 		
 		GameEndpoint gameEndpoint = new GameEndpoint();
 		return gameEndpoint.insertGame(gameToCreate);
 	}
 	
-	public Game addPlayerToGame( Game game, Player player ) {
+	public Game addPlayerToGame( 
+			@Named("gameId")Long gameId, @Named("playerId")Long playerId ) {
 		
 		GameEndpoint gameEndpoint = new GameEndpoint();
+		
+		Game game = gameEndpoint.getGame(gameId);
+		Challenge challenge = new Challenge();
+		challenge.setPlayerId(playerId);
+		game.getChallenges().add(challenge);
+		
 		return gameEndpoint.updateGame(game);
 	}
 }

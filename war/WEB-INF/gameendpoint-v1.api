@@ -1,0 +1,223 @@
+{
+  "extends" : "thirdParty.api",
+  "abstract" : false,
+  "root" : "https://phosom-server.appspot.com/_ah/api",
+  "name" : "gameendpoint",
+  "version" : "v1",
+  "defaultVersion" : false,
+  "adapter" : {
+    "bns" : "https://phosom-server.appspot.com/_ah/spi",
+    "deadline" : 10.0,
+    "type" : "lily"
+  },
+  "auth" : {
+    "allowCookieAuth" : false
+  },
+  "frontendLimits" : {
+    "unregisteredUserQps" : -1,
+    "unregisteredQps" : -1,
+    "unregisteredDaily" : -1,
+    "rules" : [ ]
+  },
+  "cacheControl" : {
+    "type" : "no-cache",
+    "maxAge" : 0
+  },
+  "ownerDomain" : "nemur.net",
+  "ownerName" : "nemur.net",
+  "packagePath" : "phosom.model",
+  "methods" : {
+    "gameendpoint.insertGame" : {
+      "path" : "game",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.insertGame",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "gameendpoint.listGame" : {
+      "path" : "game",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.listGame",
+      "request" : {
+        "parameters" : {
+          "cursor" : {
+            "type" : "string",
+            "required" : false
+          },
+          "limit" : {
+            "type" : "int32",
+            "required" : false
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "gameendpoint.removeGame" : {
+      "path" : "game/{id}",
+      "httpMethod" : "DELETE",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.removeGame",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "empty"
+      }
+    },
+    "gameendpoint.updateGame" : {
+      "path" : "game",
+      "httpMethod" : "PUT",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.updateGame",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "gameendpoint.getGame" : {
+      "path" : "game/{id}",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.getGame",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    }
+  },
+  "descriptor" : {
+    "schemas" : {
+      "Game" : {
+        "id" : "Game",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "challenges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Challenge"
+            }
+          }
+        }
+      },
+      "Challenge" : {
+        "id" : "Challenge",
+        "type" : "object",
+        "properties" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "assignmentBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "responseBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "points" : {
+            "type" : "integer"
+          }
+        }
+      },
+      "BlobKey" : {
+        "id" : "BlobKey",
+        "type" : "object",
+        "properties" : {
+          "keyString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CollectionResponse_Game" : {
+        "id" : "CollectionResponse_Game",
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Game"
+            }
+          },
+          "nextPageToken" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "methods" : {
+      "net.nemur.phosom.model.GameEndpoint.insertGame" : {
+        "request" : {
+          "$ref" : "Game"
+        },
+        "response" : {
+          "$ref" : "Game"
+        }
+      },
+      "net.nemur.phosom.model.GameEndpoint.listGame" : {
+        "response" : {
+          "$ref" : "CollectionResponse_Game"
+        }
+      },
+      "net.nemur.phosom.model.GameEndpoint.removeGame" : {
+      },
+      "net.nemur.phosom.model.GameEndpoint.updateGame" : {
+        "request" : {
+          "$ref" : "Game"
+        },
+        "response" : {
+          "$ref" : "Game"
+        }
+      },
+      "net.nemur.phosom.model.GameEndpoint.getGame" : {
+        "response" : {
+          "$ref" : "Game"
+        }
+      }
+    }
+  }
+}
