@@ -15,7 +15,7 @@ import com.google.api.server.spi.config.ApiMethod;
 public class PlayerFactoryEndpoint {
 	
 	@ApiMethod(name="createPlayerWithName", httpMethod = "POST")
-	public Player createPlayerWithName( @Named("type") String name ) {
+	public Player createPlayerWithName( @Named("name") String name ) {
 		
 		Player player = new Player();
 		player.setPlayerScreenName(name);

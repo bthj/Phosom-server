@@ -1,10 +1,8 @@
 package net.nemur.phosom.model;
 
-import javax.annotation.Nullable;
 import javax.inject.Named;
 
-import net.nemur.phosom.model.gametypes.AutoChallengeMultiPlayerGame;
-import net.nemur.phosom.model.gametypes.AutoChallengeSinglePlayerGame;
+import net.nemur.phosom.model.gametypes.AutoChallengeGame;
 import net.nemur.phosom.model.gametypes.GameTypes;
 import net.nemur.phosom.model.gametypes.ManualChallengeDuelGame;
 import net.nemur.phosom.model.gametypes.ManualChallengeGroupGame;
@@ -21,14 +19,8 @@ public class GameFactoryEndpoint {
 		Game gameToCreate = null;
 		
 		switch ( type ) {
-		case GameTypes.GAME_TYPE_AUTO_CHALLENGE_SINGLE_PLAYER:
-			gameToCreate = new AutoChallengeSinglePlayerGame();
-			// TODO: fetch challenge photo
-			break;
-			
-		case GameTypes.GAME_TYPE_AUTO_CHALLENGE_MULTI_PLAYER:
-			gameToCreate = new AutoChallengeMultiPlayerGame();
-			// TODO: fetch challenge photo
+		case GameTypes.GAME_TYPE_AUTO_CHALLENGE:
+			gameToCreate = new AutoChallengeGame();
 			break;
 			
 		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
@@ -42,16 +34,6 @@ public class GameFactoryEndpoint {
 		default:
 			break;
 		}
-
-//		Challenge challenge = new Challenge();
-//		for( Player onePlayer : players ) {
-//			gameToCreate.getPlayers().add( onePlayer.getKey().getId() );
-//			
-//			Assignment assignment = new Assignment();
-//			assignment.setPlayer( onePlayer );
-//			challenge.getAssignments().add(assignment);
-//		}
-//		gameToCreate.getChallenges().add(challenge);
 		
 		GameEndpoint gameEndpoint = new GameEndpoint();
 		return gameEndpoint.insertGame(gameToCreate);

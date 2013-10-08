@@ -1,0 +1,227 @@
+{
+ "kind": "discovery#rpcDescription",
+ "etag": "\"_SAkL5LfohOjTvNX8memTU9s4HI/Y73y1jrwuALawclWsyU1K2rYcRk\"",
+ "discoveryVersion": "v1",
+ "id": "gameendpoint:v1",
+ "name": "gameendpoint",
+ "version": "v1",
+ "description": "This is an API",
+ "ownerDomain": "nemur.net",
+ "ownerName": "nemur.net",
+ "packagePath": "phosom.model",
+ "icons": {
+  "x16": "http://www.google.com/images/icons/product/search-16.gif",
+  "x32": "http://www.google.com/images/icons/product/search-32.gif"
+ },
+ "protocol": "rpc",
+ "rootUrl": "https://phosom-server.appspot.com/_ah/api/",
+ "rpcUrl": "https://phosom-server.appspot.com/_ah/api/rpc",
+ "rpcPath": "/_ah/api/rpc",
+ "parameters": {
+  "alt": {
+   "type": "string",
+   "description": "Data format for the response.",
+   "default": "json",
+   "enum": [
+    "json"
+   ],
+   "enumDescriptions": [
+    "Responses with Content-Type of application/json"
+   ],
+   "location": "query"
+  },
+  "fields": {
+   "type": "string",
+   "description": "Selector specifying which fields to include in a partial response.",
+   "location": "query"
+  },
+  "key": {
+   "type": "string",
+   "description": "API key. Your API key identifies your project and provides you with API access, quota, and reports. Required unless you provide an OAuth 2.0 token.",
+   "location": "query"
+  },
+  "oauth_token": {
+   "type": "string",
+   "description": "OAuth 2.0 token for the current user.",
+   "location": "query"
+  },
+  "prettyPrint": {
+   "type": "boolean",
+   "description": "Returns response with indentations and line breaks.",
+   "default": "true",
+   "location": "query"
+  },
+  "quotaUser": {
+   "type": "string",
+   "description": "Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters. Overrides userIp if both are provided.",
+   "location": "query"
+  },
+  "userIp": {
+   "type": "string",
+   "description": "IP address of the site where the request originates. Use this if you want to enforce per-user limits.",
+   "location": "query"
+  }
+ },
+ "auth": {
+  "oauth2": {
+   "scopes": {
+    "https://www.googleapis.com/auth/userinfo.email": {
+     "description": "View your email address"
+    }
+   }
+  }
+ },
+ "schemas": {
+  "BlobKey": {
+   "id": "BlobKey",
+   "type": "object",
+   "properties": {
+    "keyString": {
+     "type": "string"
+    }
+   }
+  },
+  "Challenge": {
+   "id": "Challenge",
+   "type": "object",
+   "properties": {
+    "assignmentBlobKey": {
+     "$ref": "BlobKey"
+    },
+    "playerId": {
+     "type": "string",
+     "format": "int64"
+    },
+    "points": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "responseBlobKey": {
+     "$ref": "BlobKey"
+    }
+   }
+  },
+  "CollectionResponse_Game": {
+   "id": "CollectionResponse_Game",
+   "type": "object",
+   "properties": {
+    "items": {
+     "type": "array",
+     "items": {
+      "$ref": "Game"
+     }
+    },
+    "nextPageToken": {
+     "type": "string"
+    }
+   }
+  },
+  "Game": {
+   "id": "Game",
+   "type": "object",
+   "properties": {
+    "challenges": {
+     "type": "array",
+     "items": {
+      "$ref": "Challenge"
+     }
+    },
+    "id": {
+     "type": "string",
+     "format": "int64"
+    }
+   }
+  }
+ },
+ "methods": {
+  "gameendpoint.getGame": {
+   "id": "gameendpoint.getGame",
+   "allowGet": true,
+   "parameters": {
+    "id": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    }
+   },
+   "parameterOrder": [
+    "id"
+   ],
+   "returns": {
+    "$ref": "Game"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gameendpoint.insertGame": {
+   "id": "gameendpoint.insertGame",
+   "parameters": {
+    "resource": {
+     "$ref": "Game"
+    }
+   },
+   "parameterOrder": [
+    "resource"
+   ],
+   "returns": {
+    "$ref": "Game"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gameendpoint.listGame": {
+   "id": "gameendpoint.listGame",
+   "allowGet": true,
+   "parameters": {
+    "cursor": {
+     "type": "string"
+    },
+    "limit": {
+     "type": "integer",
+     "format": "int32"
+    }
+   },
+   "returns": {
+    "$ref": "CollectionResponse_Game"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gameendpoint.removeGame": {
+   "id": "gameendpoint.removeGame",
+   "parameters": {
+    "id": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    }
+   },
+   "parameterOrder": [
+    "id"
+   ],
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  },
+  "gameendpoint.updateGame": {
+   "id": "gameendpoint.updateGame",
+   "parameters": {
+    "resource": {
+     "$ref": "Game"
+    }
+   },
+   "parameterOrder": [
+    "resource"
+   ],
+   "returns": {
+    "$ref": "Game"
+   },
+   "scopes": [
+    "https://www.googleapis.com/auth/userinfo.email"
+   ]
+  }
+ }
+}

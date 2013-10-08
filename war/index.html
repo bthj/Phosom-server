@@ -7,21 +7,76 @@
 <!-- but may lead to some differences in layout.   -->
 
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>Hello App Engine</title>
-  </head>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>Hello App Engine</title>
+		   
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.css">
+		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="js/phosom.js"></script>
+		<script src="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.js"></script>
+		
+		<script src="https://apis.google.com/js/client.js?onload=endpointinit"></script>
+	</head>
 
-  <body>
-    <h1>Hello App Engine!</h1>
-	
-    <table>
-      <tr>
-        <td colspan="2" style="font-weight:bold;">Available Servlets:</td>        
-      </tr>
-      <tr>
-        <td><a href="phosom_server">Phosom_server</a></td>
-      </tr>
-    </table>
-  </body>
+	<body>
+		<div data-role="page" id="phosom-game-types">
+			<div data-role="header">
+				<h1>Phosom test</h1>
+			</div>
+			<div data-role="content">
+				<input type="button" id="btn-single-auto-challenge" 
+				value="Single auto challenge" />
+
+				<input type="button" id="btn-multi-auto-challenge" 
+				value="Create a multi-challenge game" />
+				
+				<input type="button" id="btn-multi-auto-challenge" 
+				value="Join multi-challenge game" />
+			</div>
+		</div>
+		
+		<div data-role="page" id="phosom-game-created">
+			<div data-role="header">
+				<h1>Phosom test - game created</h1>
+			</div>
+			<div data-role="content">
+			
+			</div>		
+		</div>
+		
+		<div data-role="page" id="phosom-one-challenge">
+			<div data-role="header">
+				<h1>Phosom test - one challenge</h1>
+			</div>
+			<div data-role="content">
+				<h2>one challenge!</h2>
+			</div>
+<!-- 			present player name, challenge photo and file upload form -->
+		</div>
+		
+		<div data-role="page" id="phosom-get-user">
+			<div data-role="header">
+				<h1>Phosom test - login</h1>
+			</div>
+			<div data-role="content">
+				<form action="" method="post" id="login">
+					<label for="name">Player name</label>
+					<input type="text" name="name" id="name" value="" />
+					
+					<input type="submit" value="Go!" />
+				</form>			
+			</div>
+		</div>
+		
+		<div data-role="page" id="phosom-games-overview">
+			<div data-role="header">
+				<h1>Phosom test - games</h1>
+			</div>
+			<div data-role="content">
+			
+			</div>
+		</div>
+		
+	</body>
 </html>
