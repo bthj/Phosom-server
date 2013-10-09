@@ -45,6 +45,31 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "gamefactory.getChallengePhotoUrl" : {
+      "path" : "challengephotourl/{bucket}/{filename}",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameFactoryEndpoint.getChallengePhotoUrl",
+      "request" : {
+        "parameters" : {
+          "bucket" : {
+            "type" : "string",
+            "required" : true
+          },
+          "filename" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "gamefactory.gameFactoryEndpoint.addPlayerToGame" : {
       "path" : "addPlayerToGame/{gameId}/{playerId}",
       "httpMethod" : "POST",
@@ -146,12 +171,26 @@
             "type" : "string"
           }
         }
+      },
+      "ChallengePhotoUrl" : {
+        "id" : "ChallengePhotoUrl",
+        "type" : "object",
+        "properties" : {
+          "challengePhotoUrl" : {
+            "type" : "string"
+          }
+        }
       }
     },
     "methods" : {
       "net.nemur.phosom.model.GameFactoryEndpoint.createGame" : {
         "response" : {
           "$ref" : "Game"
+        }
+      },
+      "net.nemur.phosom.model.GameFactoryEndpoint.getChallengePhotoUrl" : {
+        "response" : {
+          "$ref" : "ChallengePhotoUrl"
         }
       },
       "net.nemur.phosom.model.GameFactoryEndpoint.addPlayerToGame" : {

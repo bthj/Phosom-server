@@ -15,6 +15,12 @@ import net.nemur.phosom.model.gametypes.ManualChallengeGroupGame;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.ImagesServiceFailureException;
+import com.google.appengine.api.images.ServingUrlOptions;
 
 @Api(name = "gamefactory", version = "v1")
 public class GameFactoryEndpoint {
@@ -29,6 +35,7 @@ public class GameFactoryEndpoint {
 			gameToCreate = new AutoChallengeGame();
 			((AutoChallengeGame)gameToCreate).allocateKey();
 			((AutoChallengeGame)gameToCreate).populateAutoChallengeUrl();
+			((AutoChallengeGame)gameToCreate).uploadChallengePhotoToCloudStorageAndSetBlobKey();
 			break;
 			
 		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
@@ -45,7 +52,8 @@ public class GameFactoryEndpoint {
 		
 //		GameEndpoint gameEndpoint = new GameEndpoint();
 //		return gameEndpoint.insertGame(gameToCreate);
-		
+		// TODO:  temporarily saving here inline to get the right kind of
+		//        incremental IDs:
 		PersistenceManager mgr = getPersistenceManager();
 		try {
 			mgr.makePersistent(gameToCreate);
@@ -53,6 +61,39 @@ public class GameFactoryEndpoint {
 			mgr.close();
 		}
 		return gameToCreate;
+	}
+	
+	@ApiMethod(name = "getChallengePhotoUrl", httpMethod = "GET")
+	public ChallengePhotoUrl getChallengePhotoUrl(
+			@Named("bucket")String bucket, @Named("filename")String filename ) {
+		
+		String url = "";
+		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+		BlobKey blobKey = blobstoreService.createGsBlobKey(
+				"/gs/" + bucket + "/" + filename );
+		ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+		options.imageSize( 30 * 30 );
+		options.crop(false);
+		try {
+			url = ImagesServiceFactory.getImagesService().getServingUrl(options);
+		} catch( ImagesServiceFailureException e ) {
+			url = "";
+			// TODO: log...
+		}
+		return new ChallengePhotoUrl( url );
+	}
+	public class ChallengePhotoUrl {
+		private String challengePhotoUrl;
+		public ChallengePhotoUrl( String url ) {
+			setChallengePhotoUrl(url);
+		}
+		public String getChallengePhotoUrl() {
+			return challengePhotoUrl;
+		}
+		public void setChallengePhotoUrl(String challengePhotoUrl) {
+			this.challengePhotoUrl = challengePhotoUrl;
+		}
+		
 	}
 	
 	private static PersistenceManager getPersistenceManager() {

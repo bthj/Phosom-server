@@ -2,10 +2,13 @@ package net.nemur.phosom.model.gametypes;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.Channels;
 import java.util.Random;
 
 import javax.jdo.annotations.IdentityType;
@@ -17,10 +20,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyRange;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
+import com.google.appengine.tools.cloudstorage.RetryParams;
 
 import net.nemur.phosom.model.Game;
 
@@ -30,33 +42,12 @@ import net.nemur.phosom.model.Game;
 public class AutoChallengeGame extends Game {
 	
 	private static final String FLICKR_API_KEY = "0cc84fc9654aaeca27ce2ee40a0cf574"; // TODO: environment variable or something!
+	private static final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
 	
-	@Persistent
-	String challengeUrl;
+	@Persistent String challengeUrl;
+	@Persistent BlobKey challengePhotoBlobKey;
 	
-//	public AutoChallengeGame() throws JSONException, IOException {
-//		// place ID found with http://www.flickr.com/services/api/explore/flickr.places.find
-//		String placeId = "554890";
-//		String flickrRestUrl = getFlickrRestUrlForPlaceId(placeId);
-//		setChallengeUrl( getRandomImageUrlFromFlicrRestResponse(flickrRestUrl) );
-//		
-//		if( null == key ) {
-//			DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-//			KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
-//			key = keyRange.getStart();
-//		}
-//	}
-	
-	
-//	public Key getKey() {
-//		if( null == key ) {
-//			DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-//			KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
-//			key = keyRange.getStart();
-//		}
-//		return key;
-//	}
-	
+
 	public void allocateKey() {
 		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 		KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
@@ -70,14 +61,43 @@ public class AutoChallengeGame extends Game {
 		setChallengeUrl( getRandomImageUrlFromFlicrRestResponse(flickrRestUrl) );		
 	}
 	
+	/**
+	 * This is where backoff parameters are configured. Here it is aggressively
+	 * retrying with backoff, up to 10 times but taking no more that 15 seconds
+	 * total to do so.
+	 */
+	private final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
+			.initialRetryDelayMillis(10)
+			.retryMaxAttempts(10)
+			.totalRetryPeriodMillis(15000)
+			.build());
 
-	public String getChallengeUrl() {
-		return challengeUrl;
+	public void uploadChallengePhotoToCloudStorageAndSetBlobKey() throws IOException {
+		String fileName = getFileNameFromUrlString( getChallengeUrl() );
+		GcsFilename gcsFilename = new GcsFilename(BUCKET_NAME_AUTO_CHALLENGE, fileName);
+		
+		// set a key to the Cloud Storage containing the challenge photo
+		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+		BlobKey blobKey = blobstoreService.createGsBlobKey( 
+				"/gs/" + BUCKET_NAME_AUTO_CHALLENGE + "/" + fileName );
+		setChallengePhotoBlobKey(blobKey);
+		
+		// get the URL to the challenge
+		URL challengeUrl = new URL( getChallengeUrl() );
+		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
+		httpConn.setConnectTimeout(15 * 1000);
+		httpConn.connect();
+		
+		// copy the file from URL to the Cloud Storage bucket:
+		GcsOutputChannel outputChannel =
+				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
+		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
 	}
-	public void setChallengeUrl(String challengeUrl) {
-		this.challengeUrl = challengeUrl;
-	}
+
 	
+	private String getFileNameFromUrlString( String urlString ) {
+		return urlString.substring( urlString.lastIndexOf('/')+1, urlString.length() );
+	}
 	
 	private String getFlickrRestUrlForPlaceId( String placeId ) {
 		return "http://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&extras=original_format,tags,description,geo,date_upload,owner_name,place_url&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
@@ -144,6 +164,47 @@ public class AutoChallengeGame extends Game {
 	    int randomNum = rand.nextInt((max - min)) + min;
 
 	    return randomNum;
+	}
+	
+	/**
+	 * Used below to determine the size of chucks to read in. Should be > 1kb
+	 * and < 10MB
+	 */
+	private static final int BUFFER_SIZE = 2 * 1024 * 1024;
+
+	/**
+	 * from
+	 * https://code.google.com/p/appengine-gcs-client/source/browse/trunk/java/example/src/com/google/appengine/demos/GcsExampleServlet.java 
+	 * Transfer the data from the inputStream to the outputStream. Then close both streams.
+	 */
+	private void copy(InputStream input, OutputStream output) throws IOException {
+		try {
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int bytesRead = input.read(buffer);
+			while (bytesRead != -1) {
+				output.write(buffer, 0, bytesRead);
+				bytesRead = input.read(buffer);
+			}
+		} finally {
+			input.close();
+			output.close();
+		}
+	}
+	
+	
+	
+	public String getChallengeUrl() {
+		return challengeUrl;
+	}
+	public void setChallengeUrl(String challengeUrl) {
+		this.challengeUrl = challengeUrl;
+	}
+	public BlobKey getChallengePhotoBlobKey() {
+		return challengePhotoBlobKey;
+	}
+
+	public void setChallengePhotoBlobKey(BlobKey challengePhotoBlobKey) {
+		this.challengePhotoBlobKey = challengePhotoBlobKey;
 	}
 
 }

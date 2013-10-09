@@ -73,7 +73,17 @@ $( document ).ready(function(){
 				
 				console.log(resp);
 				
-				$( 'div#phosom-game-created div[data-role="content"]' ).append( $('<img/>',{'src':resp.challengeUrl}) );
+				gapi.client.gamefactory.getChallengePhotoUrl(
+					{
+						'bucket':'auto-challenge-photos', 
+						'filename':resp.challengeUrl.substring(resp.challengeUrl.lastIndexOf('/')+1, resp.challengeUrl.length)
+					}).execute(function(urlResp){
+					
+						console.log(urlResp);
+					
+						$( 'div#phosom-game-created div[data-role="content"]' ).append( 
+								$('<img/>',{'src':urlResp.challengePhotoUrl}) );
+				});
 				
 				$.mobile.loading( 'hide' );
 			});
