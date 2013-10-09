@@ -23,7 +23,6 @@ public class Player {
 //	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	//private Long id;
 	private Key key;
 
 	public Key getKey() {

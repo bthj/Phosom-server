@@ -153,7 +153,7 @@ public class GameEndpoint {
 		PersistenceManager mgr = getPersistenceManager();
 		boolean contains = true;
 		try {
-			mgr.getObjectById(Game.class, game.getId());
+			mgr.getObjectById(Game.class, game.getKey());
 		} catch (javax.jdo.JDOObjectNotFoundException ex) {
 			contains = false;
 		} finally {

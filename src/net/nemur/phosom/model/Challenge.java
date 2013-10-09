@@ -1,17 +1,31 @@
 package net.nemur.phosom.model;
 
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable
 public class Challenge {
 
+	@PrimaryKey
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private Key playerKey;
+	
 	@Persistent private Long playerId;
-	@Persistent BlobKey assignmentBlobKey;
-	@Persistent BlobKey responseBlobKey;
+	@Persistent private BlobKey assignmentBlobKey;
+	@Persistent private BlobKey responseBlobKey;
 	@Persistent private int points;
+	
+	public Key getPlayerKey() {
+		return playerKey;
+	}
+	public void setPlayerKey(Key playerKey) {
+		this.playerKey = playerKey;
+	}
 	
 	public Long getPlayerId() {
 		return playerId;

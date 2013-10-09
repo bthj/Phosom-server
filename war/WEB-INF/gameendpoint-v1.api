@@ -133,9 +133,8 @@
         "id" : "Game",
         "type" : "object",
         "properties" : {
-          "id" : {
-            "type" : "string",
-            "format" : "int64"
+          "key" : {
+            "$ref" : "Key"
           },
           "challenges" : {
             "type" : "array",
@@ -145,10 +144,41 @@
           }
         }
       },
+      "Key" : {
+        "id" : "Key",
+        "type" : "object",
+        "properties" : {
+          "kind" : {
+            "type" : "string"
+          },
+          "appId" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "complete" : {
+            "type" : "boolean"
+          },
+          "namespace" : {
+            "type" : "string"
+          },
+          "parent" : {
+            "$ref" : "Key"
+          }
+        }
+      },
       "Challenge" : {
         "id" : "Challenge",
         "type" : "object",
         "properties" : {
+          "playerKey" : {
+            "$ref" : "Key"
+          },
           "playerId" : {
             "type" : "string",
             "format" : "int64"

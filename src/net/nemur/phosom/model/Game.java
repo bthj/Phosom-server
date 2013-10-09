@@ -25,7 +25,7 @@ import com.google.appengine.api.datastore.KeyRange;
 
 //@Entity
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-@Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
+//@Inheritance(strategy = InheritanceStrategy.SUBCLASS_TABLE)
 public class Game {
 
 //	@Id
@@ -33,7 +33,7 @@ public class Game {
 //	private Key id;
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	private Long id;
+	protected Key key;
 	
 	
 	@Nullable
@@ -42,13 +42,15 @@ public class Game {
 	private List<Challenge> challenges;
 	
 	
-	public Long getId() {
-		if( null == id ) {
+	// TODO: DATE
+	
+	public Key getKey() {
+		if( null == key ) {
 			DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
 			KeyRange keyRange = datastoreService.allocateIds("Game", 1L);
-			id = keyRange.getStart().getId();
+			key = keyRange.getStart();
 		}
-		return id;
+		return key;
 	}
 	
 

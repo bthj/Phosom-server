@@ -1,6 +1,12 @@
 package net.nemur.phosom.model;
 
+import java.io.IOException;
+
 import javax.inject.Named;
+import javax.jdo.PersistenceManager;
+import javax.persistence.EntityExistsException;
+
+import org.json.JSONException;
 
 import net.nemur.phosom.model.gametypes.AutoChallengeGame;
 import net.nemur.phosom.model.gametypes.GameTypes;
@@ -14,13 +20,15 @@ import com.google.api.server.spi.config.ApiMethod;
 public class GameFactoryEndpoint {
 
 	@ApiMethod(name = "createGame", httpMethod = "POST")
-	public Game createGame( @Named("type") String type ) {
+	public Game createGame( @Named("type") String type ) throws JSONException, IOException {
 		
 		Game gameToCreate = null;
 		
 		switch ( type ) {
 		case GameTypes.GAME_TYPE_AUTO_CHALLENGE:
 			gameToCreate = new AutoChallengeGame();
+			((AutoChallengeGame)gameToCreate).allocateKey();
+			((AutoChallengeGame)gameToCreate).populateAutoChallengeUrl();
 			break;
 			
 		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
@@ -35,8 +43,20 @@ public class GameFactoryEndpoint {
 			break;
 		}
 		
-		GameEndpoint gameEndpoint = new GameEndpoint();
-		return gameEndpoint.insertGame(gameToCreate);
+//		GameEndpoint gameEndpoint = new GameEndpoint();
+//		return gameEndpoint.insertGame(gameToCreate);
+		
+		PersistenceManager mgr = getPersistenceManager();
+		try {
+			mgr.makePersistent(gameToCreate);
+		} finally {
+			mgr.close();
+		}
+		return gameToCreate;
+	}
+	
+	private static PersistenceManager getPersistenceManager() {
+		return PMF.get().getPersistenceManager();
 	}
 	
 	public Game addPlayerToGame( 
