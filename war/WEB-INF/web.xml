@@ -12,7 +12,7 @@
 		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
 		<init-param>
 			<param-name>services</param-name>
-			<param-value>net.nemur.phosom.model.GameEndpoint,net.nemur.phosom.model.GameFactoryEndpoint,net.nemur.phosom.model.PlayerEndpoint,net.nemur.phosom.model.PlayerFactoryEndpoint</param-value>
+			<param-value>net.nemur.phosom.model.GameEndpoint,net.nemur.phosom.model.GameServiceEndpoint,net.nemur.phosom.model.PlayerEndpoint,net.nemur.phosom.model.PlayerFactoryEndpoint,net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint,net.nemur.phosom.model.gametypes.AutoChallengeGameFactoryEndpoint</param-value>
 		</init-param>
 	</servlet>
 	

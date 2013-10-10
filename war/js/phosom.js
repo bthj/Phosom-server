@@ -56,34 +56,37 @@ $( document ).ready(function(){
 		$(this).find('h2').html('Welcome, ' + g_activeUser.playerScreenName + ', to your challenge!');
 	});
 	
-//	$( "div#phosom-game-created" ).on( "pagebeforecreate", function( event, ui ) {
-//		$( 'div#phosom-game-created div[data-role="content"]' ).empty();
-//		$( 'div#phosom-game-created div[data-role="content"]' ).trigger("create");
-//	});
+
 	$(document).on('pagehide', '#phosom-game-created', function(){ 
 	    $(this).find('[data-role="content"]').empty();
 	});
 	$( "div#phosom-game-created" ).on( "pageshow", function( event, ui ) {
 		$.mobile.loading( 'show', { text: 'Creating a game...', textVisible:true});
 		
+		var $content = $( 'div#phosom-game-created div[data-role="content"]' );
+		
 		switch( $( '#phosom-game-created' ).data('game-type') ) {
 		case "autoChallenge":
-			gapi.client.gamefactory.createGame(
-					{'type':'autoChallenge'}).execute(function(resp){
+			gapi.client.autoChallengeGameFactory.createGame().execute(function(resp){
 				
 				console.log(resp);
 				
-				gapi.client.gamefactory.getChallengePhotoUrl(
+				$content.append( $('<h2/>').text('Game # ' + resp.key.id + ' created') );
+				
+				gapi.client.gameService.getChallengePhotoUrl(
 					{
 						'bucket':'auto-challenge-photos', 
-						'filename':resp.challengeUrl.substring(resp.challengeUrl.lastIndexOf('/')+1, resp.challengeUrl.length)
+						'filename':resp.challengeUrl.substring(resp.challengeUrl.lastIndexOf('/')+1, resp.challengeUrl.length),
+						'size':30*30
 					}).execute(function(urlResp){
 					
 						console.log(urlResp);
 					
-						$( 'div#phosom-game-created div[data-role="content"]' ).append( 
-								$('<img/>',{'src':urlResp.challengePhotoUrl}) );
+						$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
 				});
+				
+				// TODO: add user to game
+				// TODO: show
 				
 				$.mobile.loading( 'hide' );
 			});
@@ -103,9 +106,14 @@ function endpointinit() {
 	gapi.client.load('playerfactory', 'v1', function(){
 		
 	}, ENDPOINT_ROOT);
-	gapi.client.load('gamefactory', 'v1', function(){
+	gapi.client.load('autoChallengeGameFactory', 'v1', function(){
 		
 	}, ENDPOINT_ROOT);
+	gapi.client.load('gameService', 'v1', function(){
+		
+	}, ENDPOINT_ROOT);
+	
+	// TODO: enable buttons when all apis have loaded, see https://developers.google.com/appengine/docs/java/endpoints/consume_js
 }
 function getPlayerWithName( name ) {
 

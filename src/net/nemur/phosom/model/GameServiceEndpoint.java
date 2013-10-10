@@ -22,57 +22,59 @@ import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ImagesServiceFailureException;
 import com.google.appengine.api.images.ServingUrlOptions;
 
-@Api(name = "gamefactory", version = "v1")
-public class GameFactoryEndpoint {
+@Api(name = "gameService", version = "v1")
+public class GameServiceEndpoint {
 
-	@ApiMethod(name = "createGame", httpMethod = "POST")
-	public Game createGame( @Named("type") String type ) throws JSONException, IOException {
-		
-		Game gameToCreate = null;
-		
-		switch ( type ) {
-		case GameTypes.GAME_TYPE_AUTO_CHALLENGE:
-			gameToCreate = new AutoChallengeGame();
-			((AutoChallengeGame)gameToCreate).allocateKey();
-			((AutoChallengeGame)gameToCreate).populateAutoChallengeUrl();
-			((AutoChallengeGame)gameToCreate).uploadChallengePhotoToCloudStorageAndSetBlobKey();
-			break;
-			
-		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
-			gameToCreate = new ManualChallengeDuelGame();
-			break;
-			
-		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_GROUP_GAME:
-			gameToCreate = new ManualChallengeGroupGame();
-			break;
-
-		default:
-			break;
-		}
-		
-//		GameEndpoint gameEndpoint = new GameEndpoint();
-//		return gameEndpoint.insertGame(gameToCreate);
-		// TODO:  temporarily saving here inline to get the right kind of
-		//        incremental IDs:
-		PersistenceManager mgr = getPersistenceManager();
-		try {
-			mgr.makePersistent(gameToCreate);
-		} finally {
-			mgr.close();
-		}
-		return gameToCreate;
-	}
+//	@ApiMethod(name = "createGame", httpMethod = "POST")
+//	public Game createGame( @Named("type") String type ) throws JSONException, IOException {
+//		
+//		Game gameToCreate = null;
+//		
+//		switch ( type ) {
+//		case GameTypes.GAME_TYPE_AUTO_CHALLENGE:
+//			gameToCreate = new AutoChallengeGame();
+////			((AutoChallengeGame)gameToCreate).allocateKey();
+//			((AutoChallengeGame)gameToCreate).populateAutoChallengeUrl();
+//			((AutoChallengeGame)gameToCreate).uploadChallengePhotoToCloudStorageAndSetBlobKey();
+//			break;
+//			
+//		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
+//			gameToCreate = new ManualChallengeDuelGame();
+//			break;
+//			
+//		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_GROUP_GAME:
+//			gameToCreate = new ManualChallengeGroupGame();
+//			break;
+//
+//		default:
+//			break;
+//		}
+//		
+////		GameEndpoint gameEndpoint = new GameEndpoint();
+////		return gameEndpoint.insertGame(gameToCreate);
+//		// TODO:  temporarily saving here inline to get the right kind of
+//		//        incremental IDs:
+//		PersistenceManager mgr = getPersistenceManager();
+//		try {
+//			mgr.makePersistent(gameToCreate);
+//		} finally {
+//			mgr.close();
+//		}
+//		return gameToCreate;
+//	}
 	
 	@ApiMethod(name = "getChallengePhotoUrl", httpMethod = "GET")
 	public ChallengePhotoUrl getChallengePhotoUrl(
-			@Named("bucket")String bucket, @Named("filename")String filename ) {
+			@Named("bucket")String bucket, 
+			@Named("filename")String filename,
+			@Named("size")int size ) {
 		
 		String url = "";
 		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 		BlobKey blobKey = blobstoreService.createGsBlobKey(
 				"/gs/" + bucket + "/" + filename );
 		ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
-		options.imageSize( 30 * 30 );
+		options.imageSize( size );
 		options.crop(false);
 		try {
 			url = ImagesServiceFactory.getImagesService().getServingUrl(options);
@@ -96,10 +98,7 @@ public class GameFactoryEndpoint {
 		
 	}
 	
-	private static PersistenceManager getPersistenceManager() {
-		return PMF.get().getPersistenceManager();
-	}
-	
+	@ApiMethod(name = "addPlayerToGame" )
 	public Game addPlayerToGame( 
 			@Named("gameId")Long gameId, @Named("playerId")Long playerId ) {
 		
@@ -112,4 +111,11 @@ public class GameFactoryEndpoint {
 		
 		return gameEndpoint.updateGame(game);
 	}
+	
+	
+	
+	private static PersistenceManager getPersistenceManager() {
+		return PMF.get().getPersistenceManager();
+	}
+
 }

@@ -11,10 +11,12 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.util.Random;
 
+import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,15 +46,28 @@ public class AutoChallengeGame extends Game {
 	private static final String FLICKR_API_KEY = "0cc84fc9654aaeca27ce2ee40a0cf574"; // TODO: environment variable or something!
 	private static final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
 	
+//	@PrimaryKey
+//	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+//	private Key key;
+	
 	@Persistent String challengeUrl;
 	@Persistent BlobKey challengePhotoBlobKey;
 	
 
-	public void allocateKey() {
-		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-		KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
-		key = keyRange.getStart();
+	public Key getKey() {
+		if( null == key ) {
+			DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+			KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
+			key = keyRange.getStart();
+		}
+		return key;
 	}
+	
+//	public void allocateKey() {
+//		DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+//		KeyRange keyRange = datastoreService.allocateIds("AutoChallengeGame", 1L);
+//		key = keyRange.getStart();
+//	}
 	
 	public void populateAutoChallengeUrl() throws JSONException, IOException {
 		// place ID found with http://www.flickr.com/services/api/explore/flickr.places.find

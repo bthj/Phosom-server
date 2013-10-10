@@ -2,7 +2,7 @@
   "extends" : "thirdParty.api",
   "abstract" : false,
   "root" : "https://phosom-server.appspot.com/_ah/api",
-  "name" : "playerendpoint",
+  "name" : "autochallengegameendpoint",
   "version" : "v1",
   "defaultVersion" : false,
   "adapter" : {
@@ -25,37 +25,16 @@
   },
   "ownerDomain" : "nemur.net",
   "ownerName" : "nemur.net",
-  "packagePath" : "phosom.model",
+  "packagePath" : "phosom.model.gametypes",
   "methods" : {
-    "playerendpoint.removePlayer" : {
-      "path" : "player/{id}",
-      "httpMethod" : "DELETE",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.removePlayer",
-      "request" : {
-        "parameters" : {
-          "id" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "empty"
-      }
-    },
-    "playerendpoint.listPlayer" : {
-      "path" : "player",
+    "autochallengegameendpoint.listAutoChallengeGame" : {
+      "path" : "autochallengegame",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.listPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.listAutoChallengeGame",
       "request" : {
         "parameters" : {
           "cursor" : {
@@ -73,14 +52,35 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.getPlayer" : {
-      "path" : "player/{id}",
+    "autochallengegameendpoint.removeAutoChallengeGame" : {
+      "path" : "autochallengegame/{id}",
+      "httpMethod" : "DELETE",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.removeAutoChallengeGame",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "empty"
+      }
+    },
+    "autochallengegameendpoint.getAutoChallengeGame" : {
+      "path" : "autochallengegame/{id}",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.getPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.getAutoChallengeGame",
       "request" : {
         "parameters" : {
           "id" : {
@@ -94,14 +94,14 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.updatePlayer" : {
-      "path" : "player",
+    "autochallengegameendpoint.updateAutoChallengeGame" : {
+      "path" : "autochallengegame",
       "httpMethod" : "PUT",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.updatePlayer",
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame",
       "request" : {
         "body" : "autoTemplate(backendRequest)",
         "bodyName" : "resource"
@@ -110,14 +110,14 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.insertPlayer" : {
-      "path" : "player",
+    "autochallengegameendpoint.insertAutoChallengeGame" : {
+      "path" : "autochallengegame",
       "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.insertPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame",
       "request" : {
         "body" : "autoTemplate(backendRequest)",
         "bodyName" : "resource"
@@ -129,14 +129,14 @@
   },
   "descriptor" : {
     "schemas" : {
-      "CollectionResponse_Player" : {
-        "id" : "CollectionResponse_Player",
+      "CollectionResponse_AutoChallengeGame" : {
+        "id" : "CollectionResponse_AutoChallengeGame",
         "type" : "object",
         "properties" : {
           "items" : {
             "type" : "array",
             "items" : {
-              "$ref" : "Player"
+              "$ref" : "AutoChallengeGame"
             }
           },
           "nextPageToken" : {
@@ -144,18 +144,24 @@
           }
         }
       },
-      "Player" : {
-        "id" : "Player",
+      "AutoChallengeGame" : {
+        "id" : "AutoChallengeGame",
         "type" : "object",
         "properties" : {
           "key" : {
             "$ref" : "Key"
           },
-          "playerScreenName" : {
+          "challenges" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Challenge"
+            }
+          },
+          "challengeUrl" : {
             "type" : "string"
           },
-          "email" : {
-            "type" : "string"
+          "challengePhotoBlobKey" : {
+            "$ref" : "BlobKey"
           }
         }
       },
@@ -186,35 +192,66 @@
             "$ref" : "Key"
           }
         }
+      },
+      "Challenge" : {
+        "id" : "Challenge",
+        "type" : "object",
+        "properties" : {
+          "playerKey" : {
+            "$ref" : "Key"
+          },
+          "playerId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "assignmentBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "responseBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "points" : {
+            "type" : "integer"
+          }
+        }
+      },
+      "BlobKey" : {
+        "id" : "BlobKey",
+        "type" : "object",
+        "properties" : {
+          "keyString" : {
+            "type" : "string"
+          }
+        }
       }
     },
     "methods" : {
-      "net.nemur.phosom.model.PlayerEndpoint.removePlayer" : {
-      },
-      "net.nemur.phosom.model.PlayerEndpoint.listPlayer" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.listAutoChallengeGame" : {
         "response" : {
-          "$ref" : "CollectionResponse_Player"
+          "$ref" : "CollectionResponse_AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.PlayerEndpoint.getPlayer" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.removeAutoChallengeGame" : {
+      },
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.getAutoChallengeGame" : {
         "response" : {
-          "$ref" : "Player"
+          "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.PlayerEndpoint.updatePlayer" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame" : {
         "request" : {
-          "$ref" : "Player"
+          "$ref" : "AutoChallengeGame"
         },
         "response" : {
-          "$ref" : "Player"
+          "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.PlayerEndpoint.insertPlayer" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame" : {
         "request" : {
-          "$ref" : "Player"
+          "$ref" : "AutoChallengeGame"
         },
         "response" : {
-          "$ref" : "Player"
+          "$ref" : "AutoChallengeGame"
         }
       }
     }
