@@ -1,0 +1,5 @@
+/target
+
+*.class
+
+war/WEB-INF/appengine-generated/encoded_gs_key:L2dzL2F1dG8tY2hhbGxlbmdlLXBob3Rvcy8xMDE0MTYzMjc0NV9iZTNmMzhhYzhhX2IuanBn

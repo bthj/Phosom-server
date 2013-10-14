@@ -18,10 +18,6 @@
 				<h1>Phosom</h1>
 			</div>
 			<div data-role="content">
-				<input type="button" id="btn-single-auto-challenge" 
-				value="Single auto challenge" />
-				<center><em>Get one random photo and try to find one similar</em></center>
-				<br>
 				<input type="button" id="btn-multi-auto-challenge" 
 				value="Create a multi-challenge game" />
 				<center><em>Get a random photo and compete with others to find the most similar one</em></center>
@@ -32,9 +28,9 @@
 			</div>
 		</div>
 		
-		<div data-role="page" id="phosom-game-created">
+		<div data-role="page" id="phosom-game-creation">
 			<div data-role="header">
-				<h1>Phosom - game created</h1>
+				<h1>Phosom - game baking</h1>
 			</div>
 			<div data-role="content">
 			
@@ -46,9 +42,36 @@
 				<h1>Phosom - one challenge</h1>
 			</div>
 			<div data-role="content">
-				<h2>one challenge!</h2>
+
 			</div>
-<!-- 			present player name, challenge photo and file upload form -->
+		</div>
+		
+		<div data-role="page" id="phosom-challenge-response">
+			<div data-role="header">
+				<h1>Phosom - challenge response</h1>
+			</div>
+			<div data-role="content">
+				<h2>one challenge!</h2>
+				<div data-role="collapsible-set">
+					<div data-role="collapsible">
+						<h3>Googl'it</h3>
+						<p>To implement...</p>
+					</div>
+					<div data-role="collapsible" data-collapsed="false">
+						<h3>Post URL to an image</h3>
+						<form action="/respondwithurl" method="posts" id="respond-with-url">
+							<label for="text-basic">URL to an image:</label>
+							<input type="text" name="url" id="challenge-response-with-url" value="">
+							<input type="submit" value="Send it!" />
+						</form>
+					</div>
+					<div data-role="collapsible">
+						<h3>Upload an image</h3>
+						<label for="file">Image file:</label>
+						<input type="file" name="image" id="image" value="">
+					</div>
+				</div>
+			</div>
 		</div>
 		
 		<div data-role="page" id="phosom-get-user">
@@ -56,7 +79,7 @@
 				<h1>Phosom - login</h1>
 			</div>
 			<div data-role="content">
-				<form action="" method="post" id="login">
+				<form action="/login" method="post" id="login">
 					<label for="name">Player name</label>
 					<input type="text" name="name" id="name" value="" />
 					

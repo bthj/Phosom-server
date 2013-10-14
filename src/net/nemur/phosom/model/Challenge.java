@@ -16,8 +16,15 @@ public class Challenge {
 	private Key playerKey;
 	
 	@Persistent private Long playerId;
+	
 	@Persistent private BlobKey assignmentBlobKey;
+	@Persistent private String assignmentBucketName; // silly that you can't get this from the BlobKey!
+	@Persistent private String assignmentFileName;
+	
 	@Persistent private BlobKey responseBlobKey;
+	@Persistent private String responseBucketName;
+	@Persistent private String responseFileName;
+	
 	@Persistent private int points;
 	
 	public Key getPlayerKey() {
@@ -51,4 +58,29 @@ public class Challenge {
 	public void setPoints(int points) {
 		this.points = points;
 	}
+	
+	public String getAssignmentBucketName() {
+		return assignmentBucketName;
+	}
+	public void setAssignmentBucketName(String assignmentBucketName) {
+		this.assignmentBucketName = assignmentBucketName;
+	}
+	public String getAssignmentFileName() {
+		return assignmentFileName;
+	}
+	public void setAssignmentFileName(String assignmentFileName) {
+		this.assignmentFileName = assignmentFileName;
+	}
+	public String getResponseBucketName() {
+		return responseBucketName;
+	}
+	public void setResponseBucketName(String responseBucketName) {
+		this.responseBucketName = responseBucketName;
+	}
+	public String getResponseFileName() {
+		return responseFileName;
+	}
+	public void setResponseFileName(String responseFileName) {
+		this.responseFileName = responseFileName;
+	}	
 }

@@ -1,5 +1,7 @@
 
+var g_allAPIsLoaded;
 var g_activeUser;
+var g_activeGame;
 var g_pageAfterLogin;
 
 $( document ).ready(function(){
@@ -23,19 +25,15 @@ $( document ).ready(function(){
 		}    	
     }
     
-	// page events
 	
-	$('#btn-single-auto-challenge').click(function(){
-		
-		navigateToPageOrLoginIfNeeded( 'phosom-one-challenge' );
-	});
 	
 	$('#btn-multi-auto-challenge').click(function(){
 		
-		$( '#phosom-game-created' ).data( 'game-type', 'autoChallenge' );
+		$( '#phosom-game-creation' ).data( 'game-type', 'autoChallenge' );
 		
-		navigateToPageOrLoginIfNeeded( 'phosom-game-created' );
+		navigateToPageOrLoginIfNeeded( 'phosom-game-creation' );
 	});
+	
 	
 	$('#login').submit(function(){
 		$.mobile.loading( 'show', { text: 'Going...', textVisible:true});
@@ -52,43 +50,66 @@ $( document ).ready(function(){
 		return false;
 	});
 	
+	$('#respond-with-url').submit(function(){
+		$.mobile.loading( 'show', { text: 'Sending...', textVisible:true});
+		
+		gapi.client.autoChallengeGameService.respondToChallengeWithUrl({
+			'gameId':g_activeGame.key.id,
+			'playerId':g_activeUser.key.id,
+			'url':$('#challenge-response-with-url').val()
+		}).execute(function(respUrlSent){
+			
+			console.log(respUrlSent);
+			
+			$.mobile.loading( 'hide' );
+		});
+		
+		return false;
+	});
+	
+	
+	// page events
+	
 	$( "div#phosom-one-challenge" ).on( "pagebeforeshow", function( event, ui ) {
-		$(this).find('h2').html('Welcome, ' + g_activeUser.playerScreenName + ', to your challenge!');
+		//$(this).find('h2').html(g_activeUser.playerScreenName + ", here's your challenge!");
 	});
 	
 
-	$(document).on('pagehide', '#phosom-game-created', function(){ 
+	$( "div#phosom-game-types" ).on( "pageshow", function( event, ui ) {
+		// let's have the buttons disabled until all APIs have loaded
+		if( ! g_allAPIsLoaded ) {
+			$(this).find('[type="submit"], [type="button"]').each(function(){
+				$(this).button('disable');
+				$(this).button('refresh');
+			});
+		}
+	});
+	
+	$(document).on('pagehide', '#phosom-game-creation, #phosom-one-challenge', function(){ 
 	    $(this).find('[data-role="content"]').empty();
 	});
-	$( "div#phosom-game-created" ).on( "pageshow", function( event, ui ) {
+	
+	$( "div#phosom-game-creation" ).on( "pageshow", function( event, ui ) {
 		$.mobile.loading( 'show', { text: 'Creating a game...', textVisible:true});
 		
-		var $content = $( 'div#phosom-game-created div[data-role="content"]' );
-		
-		switch( $( '#phosom-game-created' ).data('game-type') ) {
+		switch( $( '#phosom-game-creation' ).data('game-type') ) {
 		case "autoChallenge":
-			gapi.client.autoChallengeGameFactory.createGame().execute(function(resp){
+			// create a game with automatic challenge photo
+			gapi.client.autoChallengeGameService.createGame().execute(function(resp){
 				
+				g_activeGame = resp;
 				console.log(resp);
 				
-				$content.append( $('<h2/>').text('Game # ' + resp.key.id + ' created') );
-				
-				gapi.client.gameService.getChallengePhotoUrl(
-					{
-						'bucket':'auto-challenge-photos', 
-						'filename':resp.challengeUrl.substring(resp.challengeUrl.lastIndexOf('/')+1, resp.challengeUrl.length),
-						'size':30*30
-					}).execute(function(urlResp){
+				gapi.client.autoChallengeGameService.addPlayerToGame({
+					'gameId':g_activeGame.key.id,
+					'playerId':g_activeUser.key.id
+				}).execute(function(playerAddedResp){
 					
-						console.log(urlResp);
+					console.log(playerAddedResp);
 					
-						$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
+					$.mobile.loading( 'hide' );
+					$.mobile.changePage('#phosom-one-challenge');
 				});
-				
-				// TODO: add user to game
-				// TODO: show
-				
-				$.mobile.loading( 'hide' );
 			});
 			break;
 			
@@ -96,25 +117,54 @@ $( document ).ready(function(){
 			break;
 		}
 	});
+	
+	$( "div#phosom-one-challenge" ).on( "pagebeforecreate", function( event, ui ) {
+		
+		var $content = $( 'div#phosom-one-challenge div[data-role="content"]' );
+		
+		$content.prepend( $('<h2/>').text('Game # ' + g_activeGame.key.id + " - " +g_activeUser.playerScreenName+ ", here's your challenge!") );
+		$content.append( $('<a/>', {
+			'href':'#phosom-challenge-response', 'data-role':'button', 'text':'Respond to it!'}) );
+		
+		$.mobile.loading( 'show', { text: 'Fetching the challenge...', textVisible:true});
+		gapi.client.gameService.getChallengePhotoUrl({
+			'bucket':'auto-challenge-photos', 
+			'filename':g_activeGame.challengeUrl.substring(g_activeGame.challengeUrl.lastIndexOf('/')+1, g_activeGame.challengeUrl.length),
+			'size':$content.parent().width() - 20
+		}).execute(function(urlResp){
+		
+			console.log(urlResp);
+
+			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
+			$.mobile.loading( 'hide' );
+		});
+	});
 });
 
 
 // cloud endpoint things
 
 function endpointinit() {
-	var ENDPOINT_ROOT = '//' + window.location.host + '/_ah/api';
-	gapi.client.load('playerfactory', 'v1', function(){
-		
-	}, ENDPOINT_ROOT);
-	gapi.client.load('autoChallengeGameFactory', 'v1', function(){
-		
-	}, ENDPOINT_ROOT);
-	gapi.client.load('gameService', 'v1', function(){
-		
-	}, ENDPOINT_ROOT);
+	$.mobile.loading( 'show', { text: 'Phone home...', textVisible:true});
+	var apisToLoad;
+	var callback = function() {
+		if( --apisToLoad == 0 ) {
+			// let's enable buttons now that all APIs have loaded
+			$('#'+$.mobile.activePage.attr('id')).find('[type="submit"], [type="button"]').each(function(){
+				$(this).button('enable');
+				$(this).button('refresh');
+				g_allAPIsLoaded = true;
+				$.mobile.loading( 'hide' );
+			});
+			
+			// TODO: signing things... see https://developers.google.com/appengine/docs/java/endpoints/consume_js
+		}
+	}
 	
-	// TODO: enable buttons when all apis have loaded, see https://developers.google.com/appengine/docs/java/endpoints/consume_js
-}
-function getPlayerWithName( name ) {
-
+	apisToLoad = 3;
+	
+	var ENDPOINT_ROOT = '//' + window.location.host + '/_ah/api';
+	gapi.client.load('playerfactory', 'v1', callback, ENDPOINT_ROOT);
+	gapi.client.load('autoChallengeGameService', 'v1', callback, ENDPOINT_ROOT);
+	gapi.client.load('gameService', 'v1', callback, ENDPOINT_ROOT);
 }

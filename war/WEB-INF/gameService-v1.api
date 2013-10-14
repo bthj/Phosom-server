@@ -113,11 +113,11 @@
           "name" : {
             "type" : "string"
           },
-          "namespace" : {
-            "type" : "string"
-          },
           "complete" : {
             "type" : "boolean"
+          },
+          "namespace" : {
+            "type" : "string"
           },
           "parent" : {
             "$ref" : "Key"
@@ -138,8 +138,20 @@
           "assignmentBlobKey" : {
             "$ref" : "BlobKey"
           },
+          "assignmentBucketName" : {
+            "type" : "string"
+          },
+          "assignmentFileName" : {
+            "type" : "string"
+          },
           "responseBlobKey" : {
             "$ref" : "BlobKey"
+          },
+          "responseBucketName" : {
+            "type" : "string"
+          },
+          "responseFileName" : {
+            "type" : "string"
           },
           "points" : {
             "type" : "integer"

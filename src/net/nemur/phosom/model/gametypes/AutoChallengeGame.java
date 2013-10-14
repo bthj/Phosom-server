@@ -36,6 +36,7 @@ import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
 
+import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.Game;
 
 //@PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -43,15 +44,20 @@ import net.nemur.phosom.model.Game;
 @Inheritance(customStrategy = "complete-table")
 public class AutoChallengeGame extends Game {
 	
+	public final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
+	public final String BUCKET_NAME_CHALLENGE_RESPONSES = "challenge-response-photos";
+	
 	private static final String FLICKR_API_KEY = "0cc84fc9654aaeca27ce2ee40a0cf574"; // TODO: environment variable or something!
-	private static final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
 	
 //	@PrimaryKey
 //	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 //	private Key key;
 	
 	@Persistent String challengeUrl;
+	
 	@Persistent BlobKey challengePhotoBlobKey;
+	@Persistent String challengeFileName;
+
 	
 
 	public Key getKey() {
@@ -76,29 +82,66 @@ public class AutoChallengeGame extends Game {
 		setChallengeUrl( getRandomImageUrlFromFlicrRestResponse(flickrRestUrl) );		
 	}
 	
-	/**
-	 * This is where backoff parameters are configured. Here it is aggressively
-	 * retrying with backoff, up to 10 times but taking no more that 15 seconds
-	 * total to do so.
-	 */
-	private final GcsService gcsService = GcsServiceFactory.createGcsService(new RetryParams.Builder()
-			.initialRetryDelayMillis(10)
-			.retryMaxAttempts(10)
-			.totalRetryPeriodMillis(15000)
-			.build());
+
+	public void addPlayerToGame( Long playerId ) {
+		Challenge challenge = new Challenge();
+		challenge.setPlayerId(playerId);
+		
+		challenge.setAssignmentBlobKey(getChallengePhotoBlobKey());
+		challenge.setAssignmentBucketName(BUCKET_NAME_AUTO_CHALLENGE);
+		challenge.setAssignmentFileName(getChallengeFileName());
+		
+		getChallenges().add(challenge);
+	}
+	
 
 	public void uploadChallengePhotoToCloudStorageAndSetBlobKey() throws IOException {
 		String fileName = getFileNameFromUrlString( getChallengeUrl() );
-		GcsFilename gcsFilename = new GcsFilename(BUCKET_NAME_AUTO_CHALLENGE, fileName);
+//		GcsFilename gcsFilename = new GcsFilename(BUCKET_NAME_AUTO_CHALLENGE, fileName);
 		
 		// set a key to the Cloud Storage containing the challenge photo
-		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-		BlobKey blobKey = blobstoreService.createGsBlobKey( 
-				"/gs/" + BUCKET_NAME_AUTO_CHALLENGE + "/" + fileName );
+		BlobKey blobKey = getBlobKeyFromBucketAndFileName( BUCKET_NAME_AUTO_CHALLENGE, fileName );
 		setChallengePhotoBlobKey(blobKey);
+		setChallengeFileName(fileName);
 		
 		// get the URL to the challenge
-		URL challengeUrl = new URL( getChallengeUrl() );
+//		URL challengeUrl = new URL( getChallengeUrl() );
+//		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
+//		httpConn.setConnectTimeout(15 * 1000);
+//		httpConn.connect();
+//		
+//		// copy the file from URL to the Cloud Storage bucket:
+//		GcsOutputChannel outputChannel =
+//				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
+//		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
+		
+		uploadPhotoFromUrlToCloudStorage(getChallengeUrl(), BUCKET_NAME_AUTO_CHALLENGE, fileName);
+	}
+	
+	public void uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey( String url, Long playerId ) throws IOException {
+		String fileName = getFileNameFromUrlString( url );
+		
+		BlobKey blobKey = getBlobKeyFromBucketAndFileName(BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
+		
+		for( Challenge oneChallenge : getChallenges() ) {
+			if( playerId.equals(oneChallenge.getPlayerId()) ) {
+				oneChallenge.setResponseBlobKey(blobKey);
+				oneChallenge.setResponseBucketName(BUCKET_NAME_CHALLENGE_RESPONSES);
+				oneChallenge.setResponseFileName(fileName);
+				break;
+			}
+		}
+		
+		uploadPhotoFromUrlToCloudStorage(url, BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
+	}
+
+
+	
+	private void uploadPhotoFromUrlToCloudStorage( String url, String bucketName, String fileName ) throws IOException {
+		GcsFilename gcsFilename = new GcsFilename(bucketName, fileName);
+		
+		// get the URL
+		URL challengeUrl = new URL( url );
 		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
 		httpConn.setConnectTimeout(15 * 1000);
 		httpConn.connect();
@@ -108,7 +151,15 @@ public class AutoChallengeGame extends Game {
 				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
 		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
 	}
-
+	
+	private BlobKey getBlobKeyFromBucketAndFileName( String bucketName, String fileName ) {
+		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+		BlobKey blobKey = blobstoreService.createGsBlobKey( 
+				"/gs/" + bucketName + "/" + fileName );
+		return blobKey;
+	}
+	
+	
 	
 	private String getFileNameFromUrlString( String urlString ) {
 		return urlString.substring( urlString.lastIndexOf('/')+1, urlString.length() );
@@ -220,6 +271,14 @@ public class AutoChallengeGame extends Game {
 
 	public void setChallengePhotoBlobKey(BlobKey challengePhotoBlobKey) {
 		this.challengePhotoBlobKey = challengePhotoBlobKey;
+	}
+	
+	public String getChallengeFileName() {
+		return challengeFileName;
+	}
+
+	public void setChallengeFileName(String challengeFileName) {
+		this.challengeFileName = challengeFileName;
 	}
 
 }

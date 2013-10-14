@@ -94,22 +94,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "autochallengegameendpoint.updateAutoChallengeGame" : {
-      "path" : "autochallengegame",
-      "httpMethod" : "PUT",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame",
-      "request" : {
-        "body" : "autoTemplate(backendRequest)",
-        "bodyName" : "resource"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "autochallengegameendpoint.insertAutoChallengeGame" : {
       "path" : "autochallengegame",
       "httpMethod" : "POST",
@@ -118,6 +102,22 @@
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
       "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "autochallengegameendpoint.updateAutoChallengeGame" : {
+      "path" : "autochallengegame",
+      "httpMethod" : "PUT",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame",
       "request" : {
         "body" : "autoTemplate(backendRequest)",
         "bodyName" : "resource"
@@ -162,6 +162,9 @@
           },
           "challengePhotoBlobKey" : {
             "$ref" : "BlobKey"
+          },
+          "challengeFileName" : {
+            "type" : "string"
           }
         }
       },
@@ -182,11 +185,11 @@
           "name" : {
             "type" : "string"
           },
-          "namespace" : {
-            "type" : "string"
-          },
           "complete" : {
             "type" : "boolean"
+          },
+          "namespace" : {
+            "type" : "string"
           },
           "parent" : {
             "$ref" : "Key"
@@ -207,8 +210,20 @@
           "assignmentBlobKey" : {
             "$ref" : "BlobKey"
           },
+          "assignmentBucketName" : {
+            "type" : "string"
+          },
+          "assignmentFileName" : {
+            "type" : "string"
+          },
           "responseBlobKey" : {
             "$ref" : "BlobKey"
+          },
+          "responseBucketName" : {
+            "type" : "string"
+          },
+          "responseFileName" : {
+            "type" : "string"
           },
           "points" : {
             "type" : "integer"
@@ -238,7 +253,7 @@
           "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame" : {
         "request" : {
           "$ref" : "AutoChallengeGame"
         },
@@ -246,7 +261,7 @@
           "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame" : {
         "request" : {
           "$ref" : "AutoChallengeGame"
         },

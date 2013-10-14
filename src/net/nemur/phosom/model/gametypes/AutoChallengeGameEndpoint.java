@@ -1,5 +1,6 @@
 package net.nemur.phosom.model.gametypes;
 
+import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.PMF;
 
 import com.google.api.server.spi.config.Api;
@@ -16,6 +17,7 @@ import javax.annotation.Nullable;
 import javax.inject.Named;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.jdo.FetchGroup;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
