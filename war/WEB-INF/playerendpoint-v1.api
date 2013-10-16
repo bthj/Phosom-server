@@ -179,11 +179,11 @@
           "complete" : {
             "type" : "boolean"
           },
-          "namespace" : {
-            "type" : "string"
-          },
           "parent" : {
             "$ref" : "Key"
+          },
+          "namespace" : {
+            "type" : "string"
           }
         }
       }
