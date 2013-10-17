@@ -2,6 +2,7 @@ package net.nemur.phosom.model;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
@@ -22,7 +23,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.document.Document;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilderFactory;
@@ -35,6 +39,7 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyRange;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
@@ -50,7 +55,7 @@ public class Game {
 //	private Key id;
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	protected Key key;
+	protected Key key; 
 	
 	
 	@Nullable
@@ -111,6 +116,8 @@ public class Game {
 			.retryMaxAttempts(10)
 			.totalRetryPeriodMillis(15000)
 			.build());
+	
+	
 	
 	private void compareResponseToChallengeAndSetScore( Challenge challenge ) throws IOException {
 		

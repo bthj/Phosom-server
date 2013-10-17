@@ -25,6 +25,10 @@ $( document ).ready(function(){
 		}    	
     }
     
+    function getFileNameFromURL( url ) {
+    	return url.substring(url.lastIndexOf('/')+1, url.length)
+    }
+    
 	
 	
 	$('#btn-multi-auto-challenge').click(function(){
@@ -61,7 +65,7 @@ $( document ).ready(function(){
 			
 			console.log(respUrlSent);
 			
-			$.mobile.loading( 'hide' );
+			$.mobile.changePage( '#phosom-challenge-result' );
 		});
 		
 		return false;
@@ -85,7 +89,7 @@ $( document ).ready(function(){
 		}
 	});
 	
-	$(document).on('pagehide', '#phosom-game-creation, #phosom-one-challenge', function(){ 
+	$(document).on('pagehide', '#phosom-game-creation, #phosom-one-challenge, #phosom-challenge-result', function(){ 
 	    $(this).find('[data-role="content"]').empty();
 	});
 	
@@ -129,7 +133,7 @@ $( document ).ready(function(){
 		$.mobile.loading( 'show', { text: 'Fetching the challenge...', textVisible:true});
 		gapi.client.gameService.getChallengePhotoUrl({
 			'bucket':'auto-challenge-photos', 
-			'filename':g_activeGame.challengeUrl.substring(g_activeGame.challengeUrl.lastIndexOf('/')+1, g_activeGame.challengeUrl.length),
+			'filename': getFileNameFromURL( g_activeGame.challengeUrl ),
 			'size':$content.parent().width() - 20
 		}).execute(function(urlResp){
 		
@@ -139,6 +143,31 @@ $( document ).ready(function(){
 			$.mobile.loading( 'hide' );
 		});
 	});
+	
+	$( "div#phosom-challenge-result" ).on( "pagebeforecreate", function( event, ui ) {
+		var $content = $(this).find( 'div[data-role="content"]' );
+		$content.append( $('<h2/>').text('Game # ' + g_activeGame.key.id + ' - results!') );
+	});
+	$( "div#phosom-challenge-result" ).on( "pageshow", function( event, ui ) {
+		var $content = $(this).find( 'div[data-role="content"]' );
+		$.mobile.loading( 'show', { text: 'Calculating the grade...', textVisible:true});
+		
+		gapi.client.autoChallengeGameService.getChallengeAndResponseInfo({
+			'gameId':g_activeGame.key.id,
+			'playerId':g_activeUser.key.id,
+			'size':Math.round($content.parent().width() / 2.2)
+		}).execute(function(urlResp){
+			
+			console.log(urlResp);
+			
+			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
+			$content.append( $('<img/>',{'src':urlResp.responsePhotoUrl}) );
+			$content.append( $('<h3/>',{'text':'Grade: ' + urlResp.score}) );
+			
+			$.mobile.loading( 'hide' );
+		});
+	});
+	
 });
 
 

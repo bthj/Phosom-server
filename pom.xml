@@ -42,17 +42,10 @@
 		</dependency>
 		
 		<dependency>
-			<artifactId>image-feature-extraction</artifactId>
-			<groupId>org.openimaj</groupId>
-			<version>1.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<artifactId>image-processing</artifactId>
-			<groupId>org.openimaj</groupId>
-			<version>1.1</version>
-			<scope>compile</scope>
-		</dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>	            
 	</dependencies>
 	
 	<build>

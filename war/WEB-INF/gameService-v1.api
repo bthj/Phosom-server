@@ -24,33 +24,8 @@
     "maxAge" : 0
   },
   "methods" : {
-    "gameService.addPlayerToGame" : {
-      "path" : "addPlayerToGame/{gameId}/{playerId}",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.GameServiceEndpoint.addPlayerToGame",
-      "request" : {
-        "parameters" : {
-          "gameId" : {
-            "type" : "int64",
-            "required" : true
-          },
-          "playerId" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "gameService.getChallengePhotoUrl" : {
-      "path" : "challengephotourl/{bucket}/{filename}/{size}",
+      "path" : "get_challenge_photo_url",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
@@ -81,111 +56,26 @@
   },
   "descriptor" : {
     "schemas" : {
-      "Game" : {
-        "id" : "Game",
-        "type" : "object",
-        "properties" : {
-          "key" : {
-            "$ref" : "Key"
-          },
-          "challenges" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "Challenge"
-            }
-          }
-        }
-      },
-      "Key" : {
-        "id" : "Key",
-        "type" : "object",
-        "properties" : {
-          "kind" : {
-            "type" : "string"
-          },
-          "appId" : {
-            "type" : "string"
-          },
-          "id" : {
-            "type" : "string",
-            "format" : "int64"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "complete" : {
-            "type" : "boolean"
-          },
-          "parent" : {
-            "$ref" : "Key"
-          },
-          "namespace" : {
-            "type" : "string"
-          }
-        }
-      },
-      "Challenge" : {
-        "id" : "Challenge",
-        "type" : "object",
-        "properties" : {
-          "playerKey" : {
-            "$ref" : "Key"
-          },
-          "playerId" : {
-            "type" : "string",
-            "format" : "int64"
-          },
-          "assignmentBlobKey" : {
-            "$ref" : "BlobKey"
-          },
-          "assignmentBucketName" : {
-            "type" : "string"
-          },
-          "assignmentFileName" : {
-            "type" : "string"
-          },
-          "responseBlobKey" : {
-            "$ref" : "BlobKey"
-          },
-          "responseBucketName" : {
-            "type" : "string"
-          },
-          "responseFileName" : {
-            "type" : "string"
-          },
-          "points" : {
-            "type" : "integer"
-          }
-        }
-      },
-      "BlobKey" : {
-        "id" : "BlobKey",
-        "type" : "object",
-        "properties" : {
-          "keyString" : {
-            "type" : "string"
-          }
-        }
-      },
-      "ChallengePhotoUrl" : {
-        "id" : "ChallengePhotoUrl",
+      "ChallengeAndResponseInfo" : {
+        "id" : "ChallengeAndResponseInfo",
         "type" : "object",
         "properties" : {
           "challengePhotoUrl" : {
             "type" : "string"
+          },
+          "responsePhotoUrl" : {
+            "type" : "string"
+          },
+          "score" : {
+            "type" : "integer"
           }
         }
       }
     },
     "methods" : {
-      "net.nemur.phosom.model.GameServiceEndpoint.addPlayerToGame" : {
-        "response" : {
-          "$ref" : "Game"
-        }
-      },
       "net.nemur.phosom.model.GameServiceEndpoint.getChallengePhotoUrl" : {
         "response" : {
-          "$ref" : "ChallengePhotoUrl"
+          "$ref" : "ChallengeAndResponseInfo"
         }
       }
     }

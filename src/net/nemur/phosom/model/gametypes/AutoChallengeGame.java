@@ -1,6 +1,7 @@
 package net.nemur.phosom.model.gametypes;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,6 +19,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +31,10 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyRange;
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
@@ -36,6 +42,7 @@ import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
 
+import net.nemur.phosom.ImageServlet;
 import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.Game;
 
@@ -48,6 +55,7 @@ public class AutoChallengeGame extends Game {
 	public final String BUCKET_NAME_CHALLENGE_RESPONSES = "challenge-response-photos";
 	
 	private static final String FLICKR_API_KEY = "0cc84fc9654aaeca27ce2ee40a0cf574"; // TODO: environment variable or something!
+	private static final int IMAGE_SIZE_ONE_DIMENSION = 600;
 	
 //	@PrimaryKey
 //	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -137,19 +145,35 @@ public class AutoChallengeGame extends Game {
 
 
 	
-	private void uploadPhotoFromUrlToCloudStorage( String url, String bucketName, String fileName ) throws IOException {
+	private void uploadPhotoFromUrlToCloudStorage( String urlString, String bucketName, String fileName ) throws IOException {
 		GcsFilename gcsFilename = new GcsFilename(bucketName, fileName);
 		
 		// get the URL
-		URL challengeUrl = new URL( url );
-		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
-		httpConn.setConnectTimeout(15 * 1000);
-		httpConn.connect();
+		URL url = new URL( urlString );
+//		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
+//		httpConn.setConnectTimeout(15 * 1000);
+//		httpConn.connect();
+		
+//		byte[] photoBytes = IOUtils.toByteArray(httpConn.getInputStream());
+		byte[] photoBytes = IOUtils.toByteArray(url);
+		// resize photo
+		ImagesService imagesService = ImagesServiceFactory.getImagesService();
+		Image originalImage = ImagesServiceFactory.makeImage(photoBytes);
+		Transform resize = ImagesServiceFactory.makeResize(
+				IMAGE_SIZE_ONE_DIMENSION, IMAGE_SIZE_ONE_DIMENSION);
+		Image resizedImage = imagesService.applyTransform(resize, originalImage);
 		
 		// copy the file from URL to the Cloud Storage bucket:
 		GcsOutputChannel outputChannel =
 				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
-		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
+//		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
+		
+		ByteArrayInputStream photoInputStream = new ByteArrayInputStream(
+				resizedImage.getImageData());
+		OutputStream photoOutputStream = Channels.newOutputStream(outputChannel);
+		IOUtils.copy(photoInputStream, photoOutputStream);
+		IOUtils.closeQuietly(photoInputStream);
+		IOUtils.closeQuietly(photoOutputStream);
 	}
 	
 	private BlobKey getBlobKeyFromBucketAndFileName( String bucketName, String fileName ) {

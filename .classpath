@@ -1,36 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<!-- classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/datanucleus-appengine-1.0.10.final.jar" sourcepath="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/src/orm/datanucleus-appengine-1.0.10.final-src.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/datanucleus-core-1.1.5.jar" sourcepath="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/src/orm/datanucleus-core-1.1.5-src.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/datanucleus-jpa-1.1.5.jar" sourcepath="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/src/orm/datanucleus-jpa-1.1.5-src.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/geronimo-jpa_3.0_spec-1.1.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/geronimo-jta_1.1_spec-1.1.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/opt/user/datanucleus/v1/jdo2-api-2.3-eb.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/docs/javadoc/"/>
-		</attributes>
-	</classpathentry -->
 	<classpathentry kind="lib" path="war/WEB-INF/lib/appengine-gcs-client-0.3.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-15.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-math3-3.0.jar"/>
@@ -39,6 +9,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/lucene-analyzers-common-4.0.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/lucene-core-4.0.0.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/lucene-queryparser-4.0.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-io-2.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.5/appengine-java-sdk-1.8.5/lib/shared/appengine-local-runtime-shared.jar">
 		<attributes>
