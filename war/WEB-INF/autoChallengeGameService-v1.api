@@ -159,6 +159,12 @@
               "$ref" : "Challenge"
             }
           },
+          "BUCKET_NAME_AUTO_CHALLENGE" : {
+            "type" : "string"
+          },
+          "BUCKET_NAME_CHALLENGE_RESPONSES" : {
+            "type" : "string"
+          },
           "challengeUrl" : {
             "type" : "string"
           },
@@ -190,11 +196,11 @@
           "complete" : {
             "type" : "boolean"
           },
-          "parent" : {
-            "$ref" : "Key"
-          },
           "namespace" : {
             "type" : "string"
+          },
+          "parent" : {
+            "$ref" : "Key"
           }
         }
       },

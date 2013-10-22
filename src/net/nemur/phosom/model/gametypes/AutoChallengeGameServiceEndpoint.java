@@ -171,12 +171,12 @@ public class AutoChallengeGameServiceEndpoint {
 		URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
 		JSONObject similarityResult = new JSONObject( 
 				IOUtils.toString(analysisUrl, "ISO-8859-1") );
-		double distance = 10 * similarityResult.getDouble("distance");
-		if( distance > 10.0 ) {
-			distance = 10.0;
+		double distance = 1000 * similarityResult.getDouble("distance");
+		if( distance > 1000.0 ) {
+			distance = 1000.0;
 		}
 		// the maximum score is 10 and let's subtract the distance from it
 		//  to give the overall score:
-		return (int) Math.round( 10 - distance );
+		return (int) Math.round( 1000 - distance );
 	}
 }

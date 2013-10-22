@@ -12,8 +12,26 @@ $( document ).ready(function(){
     } catch (e) {
         isLocalStorage = false;
     }
+    var userStorageKey = 'phosomUser';
+    function getUserFromLocalStorage() {
+    	var userData = undefined;
+    	if( isLocalStorage ) {
+    		var userString = localStorage[userStorageKey];
+    		if( userString) {
+    			userData = JSON.parse( userString );
+    		}
+    	}
+    	return userData;
+    }
+    function saveUserToLocalStorage( userData ) {
+    	if( isLocalStorage ) {
+    		localStorage[userStorageKey] = JSON.stringify( userData );
+    	}
+    }
     
-    // TODO: move game behaviour into it's one object / enclosure!
+    g_activeUser = getUserFromLocalStorage();
+    
+    // TODO: move game behaviour into it's own object / enclosure!
     
 	
     function navigateToPageOrLoginIfNeeded( pageId ) {
@@ -30,6 +48,8 @@ $( document ).ready(function(){
     }
     
 	
+    
+    // button events
 	
 	$('#btn-multi-auto-challenge').click(function(){
 		
@@ -46,6 +66,7 @@ $( document ).ready(function(){
 				{'name':$('#name').val()}).execute(function(resp){
 			
 			g_activeUser = resp;
+			saveUserToLocalStorage(g_activeUser);
 			console.log(resp);
 			
 			$.mobile.changePage( '#'+g_pageAfterLogin );
@@ -70,6 +91,7 @@ $( document ).ready(function(){
 		
 		return false;
 	});
+	
 	
 	
 	// page events
@@ -122,7 +144,8 @@ $( document ).ready(function(){
 		}
 	});
 	
-	$( "div#phosom-one-challenge" ).on( "pagebeforecreate", function( event, ui ) {
+
+	$( "div#phosom-one-challenge" ).on( "pagebeforeshow", function( event, ui ) {
 		
 		var $content = $( 'div#phosom-one-challenge div[data-role="content"]' );
 		
@@ -142,12 +165,14 @@ $( document ).ready(function(){
 			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
 			$.mobile.loading( 'hide' );
 		});
+		$content.trigger('create');
 	});
 	
-	$( "div#phosom-challenge-result" ).on( "pagebeforecreate", function( event, ui ) {
+	$( "div#phosom-challenge-response" ).on( "pagebeforeshow", function( event, ui ) {
 		var $content = $(this).find( 'div[data-role="content"]' );
-		$content.append( $('<h2/>').text('Game # ' + g_activeGame.key.id + ' - results!') );
+		$content.find('#challenge-response-with-url').val('');
 	});
+	
 	$( "div#phosom-challenge-result" ).on( "pageshow", function( event, ui ) {
 		var $content = $(this).find( 'div[data-role="content"]' );
 		$.mobile.loading( 'show', { text: 'Calculating the grade...', textVisible:true});
@@ -160,13 +185,27 @@ $( document ).ready(function(){
 			
 			console.log(urlResp);
 			
-			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
-			$content.append( $('<img/>',{'src':urlResp.responsePhotoUrl}) );
+			$content.append( $('<h2/>').text('Game # ' + g_activeGame.key.id + ' - results!') );
+			
+			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl, 'style':'padding:5px;'}) );
+			$content.append( $('<img/>',{'src':urlResp.responsePhotoUrl, 'style':'padding:5px;'}) );
 			$content.append( $('<h3/>',{'text':'Grade: ' + urlResp.score}) );
 			
+			$content.append( $('<a/>', {
+				'href':'#phosom-game-creation', 'data-role':'button', 'text':'Have another go!'}) );
+			
 			$.mobile.loading( 'hide' );
+			
+			$content.trigger('create');
 		});
 	});
+	
+    // hidden page to clear (user) info stored in localStorage
+    $( document ).delegate("#reset", "pageinit", function() {
+        if( isLocalStorage ) {
+            localStorage.removeItem(userStorageKey);
+        }
+    });
 	
 });
 
