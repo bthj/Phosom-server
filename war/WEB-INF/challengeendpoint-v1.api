@@ -2,7 +2,7 @@
   "extends" : "thirdParty.api",
   "abstract" : false,
   "root" : "https://phosom-server.appspot.com/_ah/api",
-  "name" : "playerendpoint",
+  "name" : "challengeendpoint",
   "version" : "v1",
   "defaultVersion" : false,
   "adapter" : {
@@ -27,35 +27,30 @@
   "ownerName" : "nemur.net",
   "packagePath" : "phosom.model",
   "methods" : {
-    "playerendpoint.removePlayer" : {
-      "path" : "player/{id}",
-      "httpMethod" : "DELETE",
+    "challengeendpoint.updateChallenge" : {
+      "path" : "challenge",
+      "httpMethod" : "PUT",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.removePlayer",
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.updateChallenge",
       "request" : {
-        "parameters" : {
-          "id" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
       },
       "response" : {
-        "body" : "empty"
+        "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.getPlayer" : {
-      "path" : "player/{id}",
+    "challengeendpoint.getChallenge" : {
+      "path" : "challenge/{id}",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.getPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.getChallenge",
       "request" : {
         "parameters" : {
           "id" : {
@@ -69,14 +64,14 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.listPlayer" : {
-      "path" : "player",
+    "challengeendpoint.listChallenge" : {
+      "path" : "challenge",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.listPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.listChallenge",
       "request" : {
         "parameters" : {
           "cursor" : {
@@ -94,14 +89,14 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.updatePlayer" : {
-      "path" : "player",
-      "httpMethod" : "PUT",
+    "challengeendpoint.insertChallenge" : {
+      "path" : "challenge",
+      "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.updatePlayer",
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.insertChallenge",
       "request" : {
         "body" : "autoTemplate(backendRequest)",
         "bodyName" : "resource"
@@ -110,37 +105,61 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "playerendpoint.insertPlayer" : {
-      "path" : "player",
-      "httpMethod" : "POST",
+    "challengeendpoint.removeChallenge" : {
+      "path" : "challenge/{id}",
+      "httpMethod" : "DELETE",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.insertPlayer",
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.removeChallenge",
       "request" : {
-        "body" : "autoTemplate(backendRequest)",
-        "bodyName" : "resource"
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
       },
       "response" : {
-        "body" : "autoTemplate(backendResponse)"
+        "body" : "empty"
       }
     }
   },
   "descriptor" : {
     "schemas" : {
-      "Player" : {
-        "id" : "Player",
+      "Challenge" : {
+        "id" : "Challenge",
         "type" : "object",
         "properties" : {
           "key" : {
             "$ref" : "Key"
           },
-          "playerScreenName" : {
+          "playerId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "assignmentBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "assignmentBucketName" : {
             "type" : "string"
           },
-          "email" : {
+          "assignmentFileName" : {
             "type" : "string"
+          },
+          "responseBlobKey" : {
+            "$ref" : "BlobKey"
+          },
+          "responseBucketName" : {
+            "type" : "string"
+          },
+          "responseFileName" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "integer"
           }
         }
       },
@@ -172,14 +191,23 @@
           }
         }
       },
-      "CollectionResponse_Player" : {
-        "id" : "CollectionResponse_Player",
+      "BlobKey" : {
+        "id" : "BlobKey",
+        "type" : "object",
+        "properties" : {
+          "keyString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CollectionResponse_Challenge" : {
+        "id" : "CollectionResponse_Challenge",
         "type" : "object",
         "properties" : {
           "items" : {
             "type" : "array",
             "items" : {
-              "$ref" : "Player"
+              "$ref" : "Challenge"
             }
           },
           "nextPageToken" : {
@@ -189,33 +217,33 @@
       }
     },
     "methods" : {
-      "net.nemur.phosom.model.PlayerEndpoint.removePlayer" : {
-      },
-      "net.nemur.phosom.model.PlayerEndpoint.getPlayer" : {
-        "response" : {
-          "$ref" : "Player"
-        }
-      },
-      "net.nemur.phosom.model.PlayerEndpoint.listPlayer" : {
-        "response" : {
-          "$ref" : "CollectionResponse_Player"
-        }
-      },
-      "net.nemur.phosom.model.PlayerEndpoint.updatePlayer" : {
+      "net.nemur.phosom.model.ChallengeEndpoint.updateChallenge" : {
         "request" : {
-          "$ref" : "Player"
+          "$ref" : "Challenge"
         },
         "response" : {
-          "$ref" : "Player"
+          "$ref" : "Challenge"
         }
       },
-      "net.nemur.phosom.model.PlayerEndpoint.insertPlayer" : {
+      "net.nemur.phosom.model.ChallengeEndpoint.getChallenge" : {
+        "response" : {
+          "$ref" : "Challenge"
+        }
+      },
+      "net.nemur.phosom.model.ChallengeEndpoint.listChallenge" : {
+        "response" : {
+          "$ref" : "CollectionResponse_Challenge"
+        }
+      },
+      "net.nemur.phosom.model.ChallengeEndpoint.insertChallenge" : {
         "request" : {
-          "$ref" : "Player"
+          "$ref" : "Challenge"
         },
         "response" : {
-          "$ref" : "Player"
+          "$ref" : "Challenge"
         }
+      },
+      "net.nemur.phosom.model.ChallengeEndpoint.removeChallenge" : {
       }
     }
   }

@@ -101,7 +101,7 @@
 			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.6/appengine-java-sdk-1.8.6/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.6/appengine-java-sdk-1.8.6/lib/opt/user/datanucleus/v2/jdo-api-3.0.1.jar">
+	<classpathentry kind="lib" path="/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.6/appengine-java-sdk-1.8.6/lib/opt/user/datanucleus/v2/jdo-api-3.0.1.jar" sourcepath="/Users/bthj/.m2/repository/javax/jdo/jdo-api/3.0.1/jdo-api-3.0.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/Users/bthj/Eclipse/eclipse-kepler/plugins/com.google.appengine.eclipse.sdkbundle_1.8.6/appengine-java-sdk-1.8.6/docs/javadoc/"/>
 		</attributes>

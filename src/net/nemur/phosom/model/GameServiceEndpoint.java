@@ -30,43 +30,6 @@ import com.google.appengine.api.utils.SystemProperty;
 @Api(name = "gameService", version = "v1")
 public class GameServiceEndpoint {
 
-//	@ApiMethod(name = "createGame", httpMethod = "POST")
-//	public Game createGame( @Named("type") String type ) throws JSONException, IOException {
-//		
-//		Game gameToCreate = null;
-//		
-//		switch ( type ) {
-//		case GameTypes.GAME_TYPE_AUTO_CHALLENGE:
-//			gameToCreate = new AutoChallengeGame();
-////			((AutoChallengeGame)gameToCreate).allocateKey();
-//			((AutoChallengeGame)gameToCreate).populateAutoChallengeUrl();
-//			((AutoChallengeGame)gameToCreate).uploadChallengePhotoToCloudStorageAndSetBlobKey();
-//			break;
-//			
-//		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_DUEL_GAME:
-//			gameToCreate = new ManualChallengeDuelGame();
-//			break;
-//			
-//		case GameTypes.GAME_TYPE_MANUAL_CHALLENGE_GROUP_GAME:
-//			gameToCreate = new ManualChallengeGroupGame();
-//			break;
-//
-//		default:
-//			break;
-//		}
-//		
-////		GameEndpoint gameEndpoint = new GameEndpoint();
-////		return gameEndpoint.insertGame(gameToCreate);
-//		// TODO:  temporarily saving here inline to get the right kind of
-//		//        incremental IDs:
-//		PersistenceManager mgr = getPersistenceManager();
-//		try {
-//			mgr.makePersistent(gameToCreate);
-//		} finally {
-//			mgr.close();
-//		}
-//		return gameToCreate;
-//	}
 	
 	@ApiMethod(name = "getChallengePhotoUrl", path="get_challenge_photo_url", httpMethod = HttpMethod.GET)
 	public ChallengeAndResponseInfo getChallengePhotoUrl(
@@ -85,24 +48,6 @@ public class GameServiceEndpoint {
 		challengeUrl.setChallengePhotoUrl(url);
 		return challengeUrl;
 	}
-	
-
-	
-//	@ApiMethod(name = "addPlayerToGame" )
-//	public Game addPlayerToGame( 
-//			@Named("gameId")Long gameId, @Named("playerId")Long playerId ) {
-//		
-//		GameEndpoint gameEndpoint = new GameEndpoint();
-//		
-//		Game game = gameEndpoint.getGame(gameId);
-//		Challenge challenge = new Challenge();
-//		challenge.setPlayerId(playerId);
-//		game.getChallenges().add(challenge);
-//		
-//		return gameEndpoint.updateGame(game);
-//	}
-
-	
 	
 	
 	// TODO: this is duplicated in AutoChallengeGameServiceEndpoint !

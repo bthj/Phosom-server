@@ -13,7 +13,7 @@ public class Challenge {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	private Key playerKey;
+	private Key key;
 	
 	@Persistent private Long playerId;
 	
@@ -27,11 +27,11 @@ public class Challenge {
 	
 	@Persistent private int points;
 	
-	public Key getPlayerKey() {
-		return playerKey;
+	public Key getKey() {
+		return key;
 	}
-	public void setPlayerKey(Key playerKey) {
-		this.playerKey = playerKey;
+	public void setKey(Key key) {
+		this.key = key;
 	}
 	
 	public Long getPlayerId() {

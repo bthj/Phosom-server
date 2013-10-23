@@ -60,6 +60,10 @@
         "id" : "ChallengeAndResponseInfo",
         "type" : "object",
         "properties" : {
+          "parentGameId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
           "challengePhotoUrl" : {
             "type" : "string"
           },
@@ -68,6 +72,12 @@
           },
           "score" : {
             "type" : "integer"
+          },
+          "gameInfo" : {
+            "type" : "string"
+          },
+          "playerName" : {
+            "type" : "string"
           }
         }
       }

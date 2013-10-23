@@ -53,6 +53,27 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "autoChallengeGameService.listChallengesPlayedByPlayer" : {
+      "path" : "list_challenges_played_by_player",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.listGamesPlayedByPlayer",
+      "request" : {
+        "parameters" : {
+          "playerId" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "autoChallengeGameService.addPlayerToGame" : {
       "path" : "addPlayerToGame/{gameId}/{playerId}",
       "httpMethod" : "POST",
@@ -79,7 +100,7 @@
       }
     },
     "autoChallengeGameService.getAutoChallengeGame" : {
-      "path" : "autochallengegame/{id}",
+      "path" : "get_game",
       "httpMethod" : "GET",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
@@ -208,7 +229,7 @@
         "id" : "Challenge",
         "type" : "object",
         "properties" : {
-          "playerKey" : {
+          "key" : {
             "$ref" : "Key"
           },
           "playerId" : {
@@ -251,6 +272,10 @@
         "id" : "ChallengeAndResponseInfo",
         "type" : "object",
         "properties" : {
+          "parentGameId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
           "challengePhotoUrl" : {
             "type" : "string"
           },
@@ -259,6 +284,24 @@
           },
           "score" : {
             "type" : "integer"
+          },
+          "gameInfo" : {
+            "type" : "string"
+          },
+          "playerName" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ChallengeAndResponseInfoCollection" : {
+        "id" : "ChallengeAndResponseInfoCollection",
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "ChallengeAndResponseInfo"
+            }
           }
         }
       }
@@ -267,6 +310,11 @@
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.respondToChallengeWithUrl" : {
         "response" : {
           "$ref" : "AutoChallengeGame"
+        }
+      },
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.listGamesPlayedByPlayer" : {
+        "response" : {
+          "$ref" : "ChallengeAndResponseInfoCollection"
         }
       },
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.addPlayerToGame" : {
@@ -286,7 +334,7 @@
       },
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.getChallengeAndResponseInfo" : {
         "response" : {
-          "$ref" : "ChallengeAndResponseInfo"
+          "$ref" : "ChallengeAndResponseInfoCollection"
         }
       }
     }

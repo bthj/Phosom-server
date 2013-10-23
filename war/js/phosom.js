@@ -51,11 +51,16 @@ $( document ).ready(function(){
     
     // button events
 	
-	$('#btn-multi-auto-challenge').click(function(){
+	$('#btn-create-game').click(function(){
 		
 		$( '#phosom-game-creation' ).data( 'game-type', 'autoChallenge' );
 		
 		navigateToPageOrLoginIfNeeded( 'phosom-game-creation' );
+	});
+	
+	$('#btn-game-overview').click(function(){
+		
+		navigateToPageOrLoginIfNeeded( 'phosom-challenges-overview' );
 	});
 	
 	
@@ -92,6 +97,17 @@ $( document ).ready(function(){
 		return false;
 	});
 	
+	function setCurrentGameIdFromChallengeLink(event, ui) {
+		event.preventDefault();
+		gapi.client.autochallengegameendpoint.getAutoChallengeGame({
+			'id': $(this).data('gameid')
+		}).execute(function(game){
+			
+			g_activeGame = game;
+			
+			$.mobile.changePage( '#phosom-challenge-result' );
+		});
+	}
 	
 	
 	// page events
@@ -101,7 +117,7 @@ $( document ).ready(function(){
 	});
 	
 
-	$( "div#phosom-game-types" ).on( "pageshow", function( event, ui ) {
+	$( "div#phosom-index" ).on( "pageshow", function( event, ui ) {
 		// let's have the buttons disabled until all APIs have loaded
 		if( ! g_allAPIsLoaded ) {
 			$(this).find('[type="submit"], [type="button"]').each(function(){
@@ -111,37 +127,40 @@ $( document ).ready(function(){
 		}
 	});
 	
-	$(document).on('pagehide', '#phosom-game-creation, #phosom-one-challenge, #phosom-challenge-result', function(){ 
+	$(document).on(
+			'pagehide', 
+			'#phosom-game-creation, #phosom-one-challenge, #phosom-challenge-result, #phosom-challenges-overview', 
+			function(){ 
 	    $(this).find('[data-role="content"]').empty();
 	});
 	
 	$( "div#phosom-game-creation" ).on( "pageshow", function( event, ui ) {
 		$.mobile.loading( 'show', { text: 'Creating a game...', textVisible:true});
 		
-		switch( $( '#phosom-game-creation' ).data('game-type') ) {
-		case "autoChallenge":
-			// create a game with automatic challenge photo
-			gapi.client.autoChallengeGameService.createGame().execute(function(resp){
-				
-				g_activeGame = resp;
-				console.log(resp);
-				
-				gapi.client.autoChallengeGameService.addPlayerToGame({
-					'gameId':g_activeGame.key.id,
-					'playerId':g_activeUser.key.id
-				}).execute(function(playerAddedResp){
+//		switch( $( '#phosom-game-creation' ).data('game-type') ) {
+//			case "autoChallenge":
+				// create a game with automatic challenge photo
+				gapi.client.autoChallengeGameService.createGame().execute(function(resp){
 					
-					console.log(playerAddedResp);
+					g_activeGame = resp;
+					console.log(resp);
 					
-					$.mobile.loading( 'hide' );
-					$.mobile.changePage('#phosom-one-challenge');
+					gapi.client.autoChallengeGameService.addPlayerToGame({
+						'gameId':g_activeGame.key.id,
+						'playerId':g_activeUser.key.id
+					}).execute(function(playerAddedResp){
+						
+						console.log(playerAddedResp);
+						
+						$.mobile.loading( 'hide' );
+						$.mobile.changePage('#phosom-one-challenge');
+					});
 				});
-			});
-			break;
-			
-		default:
-			break;
-		}
+//				break;
+//				
+//			default:
+//				break;
+//		}
 	});
 	
 
@@ -151,7 +170,9 @@ $( document ).ready(function(){
 		
 		$content.prepend( $('<h2/>').text('Game # ' + g_activeGame.key.id + " - " +g_activeUser.playerScreenName+ ", here's your challenge!") );
 		$content.append( $('<a/>', {
-			'href':'#phosom-challenge-response', 'data-role':'button', 'text':'Respond to it!'}) );
+			'href':'#phosom-challenge-response', 
+			'data-role':'button',
+			'text':'Respond to it!'}) );
 		
 		$.mobile.loading( 'show', { text: 'Fetching the challenge...', textVisible:true});
 		gapi.client.gameService.getChallengePhotoUrl({
@@ -175,28 +196,75 @@ $( document ).ready(function(){
 	
 	$( "div#phosom-challenge-result" ).on( "pageshow", function( event, ui ) {
 		var $content = $(this).find( 'div[data-role="content"]' );
-		$.mobile.loading( 'show', { text: 'Calculating the grade...', textVisible:true});
+		$.mobile.loading( 'show', { text: 'Getting grades...', textVisible:true});
 		
 		gapi.client.autoChallengeGameService.getChallengeAndResponseInfo({
 			'gameId':g_activeGame.key.id,
 			'playerId':g_activeUser.key.id,
 			'size':Math.round($content.parent().width() / 2.2)
-		}).execute(function(urlResp){
+		}).execute(function(challengesInfo){
 			
-			console.log(urlResp);
+			console.log(challengesInfo);
 			
 			$content.append( $('<h2/>').text('Game # ' + g_activeGame.key.id + ' - results!') );
 			
-			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl, 'style':'padding:5px;'}) );
-			$content.append( $('<img/>',{'src':urlResp.responsePhotoUrl, 'style':'padding:5px;'}) );
-			$content.append( $('<h3/>',{'text':'Grade: ' + urlResp.score}) );
+			var $listview = $('<ul>', {'data-role':'listview', 'data-inset':'true'});
+			$.each( challengesInfo.items, function(index, oneChallenge){
+				var $oneLI = $('<li/>');
+				var $oneDIV = $('<div/>');
+				
+				$oneDIV.append( $('<img/>',{
+					'src':oneChallenge.challengePhotoUrl, 'style':'padding:5px;' }) );
+				$oneDIV.append( $('<img/>',{
+					'src':oneChallenge.responsePhotoUrl, 'style':'padding:5px;'}) );
+				$oneDIV.append( $('<h3/>',{'text':'Grade: ' + oneChallenge.score}) );
+				
+				$oneLI.append( $oneDIV );
+				$listview.append( $oneLI );
+			});
 			
+			$content.append( $listview );
+
 			$content.append( $('<a/>', {
-				'href':'#phosom-game-creation', 'data-role':'button', 'text':'Have another go!'}) );
+				'href':'#phosom-game-creation', 'data-role':'button', 'data-theme':'b', 
+				'text':'Have another go!'}) );
+			$content.append( $('<a/>', {
+				'href':'#phosom-index', 'data-role':'button', 'text':'Go home...'}) );
 			
 			$.mobile.loading( 'hide' );
 			
 			$content.trigger('create');
+		});
+	});
+	
+	$( "div#phosom-challenges-overview" ).on( "pageshow", function( event, ui ) {
+		$.mobile.loading( 'show', { text: 'Fetching challenges...', textVisible:true});
+		
+		var $content = $(this).find( 'div[data-role="content"]' );
+		
+		var $listview = $('<ul>', {'data-role':'listview', 'data-inset':'true'});
+		
+		gapi.client.autoChallengeGameService.listChallengesPlayedByPlayer({
+			'playerId':g_activeUser.key.id
+		}).execute(function(challengesInfo){
+			
+			console.log(challengesInfo);
+			
+			$.each( challengesInfo.items, function(index, challenge){
+				var $oneLI = $('<li/>');
+				var $oneAnchor = $('<a/>', {
+					'href': '#phosom-challenge-result', 'data-gameid': challenge.parentGameId
+					}).on('click', setCurrentGameIdFromChallengeLink);
+				$oneAnchor.append( $('<img/>', {'src': challenge.challengePhotoUrl}) );
+				$oneAnchor.append( $('<h2/>', {'text': challenge.gameInfo}) );
+				$oneLI.append( $oneAnchor );
+				$listview.append( $oneLI );
+			});
+			
+			$content.append( $listview );
+			$content.trigger('create');
+
+			$.mobile.loading( 'hide' );
 		});
 	});
 	
@@ -229,10 +297,11 @@ function endpointinit() {
 		}
 	}
 	
-	apisToLoad = 3;
+	apisToLoad = 4;
 	
 	var ENDPOINT_ROOT = '//' + window.location.host + '/_ah/api';
 	gapi.client.load('playerfactory', 'v1', callback, ENDPOINT_ROOT);
+	gapi.client.load('autochallengegameendpoint', 'v1', callback, ENDPOINT_ROOT);
 	gapi.client.load('autoChallengeGameService', 'v1', callback, ENDPOINT_ROOT);
 	gapi.client.load('gameService', 'v1', callback, ENDPOINT_ROOT);
 }

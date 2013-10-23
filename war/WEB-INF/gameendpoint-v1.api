@@ -176,7 +176,7 @@
         "id" : "Challenge",
         "type" : "object",
         "properties" : {
-          "playerKey" : {
+          "key" : {
             "$ref" : "Key"
           },
           "playerId" : {
