@@ -86,18 +86,8 @@ $( document ).ready(function(){
 	});
 	
 	$('#respond-with-url').submit(function(){
-		$.mobile.loading( 'show', { text: 'Sending...', textVisible:true});
 		
-		gapi.client.autoChallengeGameService.respondToChallengeWithUrl({
-			'gameId':g_activeGame.key.id,
-			'playerId':g_activeUser.key.id,
-			'url':$('#challenge-response-with-url').val()
-		}).execute(function(respUrlSent){
-			
-			console.log(respUrlSent);
-			
-			$.mobile.changePage( '#phosom-challenge-result' );
-		});
+		respondWithUrlToImage( $('#challenge-response-with-url').val() );
 		
 		return false;
 	});
@@ -135,6 +125,68 @@ $( document ).ready(function(){
 			$.mobile.changePage( '#phosom-challenge-result' );
 		});
 	}
+	
+	function respondWithUrlToImage( url ) {
+		$.mobile.loading( 'show', { text: 'Sending...', textVisible:true});
+		
+		gapi.client.autoChallengeGameService.respondToChallengeWithUrl({
+			'gameId':g_activeGame.key.id,
+			'playerId':g_activeUser.key.id,
+			'url': url
+		}).execute(function(respUrlSent){
+			
+			console.log(respUrlSent);
+			
+			$.mobile.changePage( '#phosom-challenge-result' );
+		});
+	}
+	
+	function respondWithUrlFromLink( event, ui ) {
+		event.preventDefault();
+		var url = $(this).attr('href');
+		respondWithUrlToImage(url);
+	}
+	
+	$('#image-search').submit(function(){
+		$.mobile.loading( 'show', { text: 'Finding some images...', textVisible:true});
+		
+		var $this = $(this);
+		var query = $this.find('#input-image-search').val();
+        $.ajax({
+            type: 'GET',
+            url: 'https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27'+query+'%27&Adult=%27Off%27',
+            dataType: "json", 
+            context: this,
+            beforeSend: function(xhr){
+                // base64 encoded: ignore:key
+            	// as in http://social.msdn.microsoft.com/Forums/windowsazure/en-us/9f085915-81b6-488d-a348-1c3ca769d44f/migrating-to-windows-azure-bing-search-api-with-jquery-jsonp?forum=DataMarket
+            	// and https://datamarket.azure.com/dataset/explore/bing/search
+                xhr.setRequestHeader('Authorization', 'Basic OlpGeDI1Wmh1c0lUTGVPZ3JTd2FLSzhzTVVoUlJ4cGxPSjMvME10NGcvdWs=');
+            },
+            success: function(data,status){
+            	
+            	if( data.d !== undefined ) {
+            		var $gallery = $this.siblings('.gallery').first().empty();
+            		$.each(data.d.results, function(index, result){
+            			$.each(result.Image, function(index2, image){
+            				// <li><a href="images/full/001.jpg" rel="external"><img src="images/thumb/001.jpg" alt="Image 001" /></a></li>
+//            				var $li = $('<li/>');
+            				var $a = $('<a/>', {'href':image.MediaUrl, 'rel':'external', 'style':'padding:5px;'})
+            							.on('click', respondWithUrlFromLink);
+            				var $img = $('<img/>', {'src':image.Thumbnail.MediaUrl, 'alt':image.Title});
+            				$a.append( $img );
+//            				$li.append( $a );
+            				$gallery.append( $a );
+            			});
+            		});
+            		//var photoswipe = $gallery.find('a').photoSwipe({ enableMouseWheel: false , enableKeyboard: false });
+            	}
+            	$.mobile.loading( 'hide' );
+            }
+        });
+        return false;
+	});
+	
 	
 	
 	///// page events
@@ -223,6 +275,15 @@ $( document ).ready(function(){
 		$content.find('#challenge-response-with-url').val('');
 	});
 	
+	function compareResultListsByScore( a, b ) {
+		if( a.score < b.score ) {
+			return 1;
+		}
+		if( a.score > b.score ) {
+			return -1;
+		}
+		return 0;
+	}
 	$( "div#phosom-challenge-result" ).on( "pageshow", function( event, ui ) {
 		var $content = $(this).find( 'div[data-role="content"]' );
 		$.mobile.loading( 'show', { text: 'Getting grades...', textVisible:true});
@@ -238,6 +299,7 @@ $( document ).ready(function(){
 			$content.append( $('<h2/>').text('Game # ' + g_activeGame.key.id + ' - results!') );
 			
 			var $listview = $('<ul>', {'data-role':'listview', 'data-inset':'true'});
+			var listToSort = [];
 			$.each( challengesInfo.items, function(index, oneChallenge){
 				var $oneLI = $('<li/>');
 				var $oneDIV = $('<div/>');
@@ -253,15 +315,23 @@ $( document ).ready(function(){
 					'src':oneChallenge.responsePhotoUrl, 'style':'padding:5px;'}) );
 				$oneDIV.append( $('<h3/>',{'text':'Grade: ' + oneChallenge.score}) );
 				
-				var $collapsibleSetDIV = $('<div/>', {'data-role': 'collapsible-set'});
-				var $collapsibleDIV = $('<div/>', {'data-role':'collapsible', 'data-collapsed':'true'});
-				$collapsibleDIV.append( $('<h3/>', {'text': 'Alternative scores'}) );
-				$collapsibleDIV.append( oneChallenge.extraScoreInfo );
-				$collapsibleSetDIV.append( $collapsibleDIV );
-				$oneDIV.append( $collapsibleSetDIV );
+				if( oneChallenge.playerId == g_activeUser.key.id ) {
+					var $collapsibleSetDIV = $('<div/>', {'data-role': 'collapsible-set'});
+					var $collapsibleDIV = $('<div/>', {'data-role':'collapsible', 'data-collapsed':'true'});
+					$collapsibleDIV.append( $('<h3/>', {'text': 'Alternative scores'}) );
+					$collapsibleDIV.append( oneChallenge.extraScoreInfo );
+					$collapsibleSetDIV.append( $collapsibleDIV );
+					$oneDIV.append( $collapsibleSetDIV );
+				}
 				
 				$oneLI.append( $oneDIV );
-				$listview.append( $oneLI );
+				listToSort.push( {'score':oneChallenge.score, 'liMarkup':$oneLI} );
+			});
+			
+			listToSort.sort(compareResultListsByScore);
+			
+			$.each(listToSort, function(index, oneEntry){
+				$listview.append( oneEntry.liMarkup );
 			});
 			
 			$content.append( $listview );

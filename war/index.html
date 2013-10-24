@@ -2,9 +2,10 @@
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-		<title>Hello App Engine</title>
+		<title>Phosom</title>
 		   
 		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.css">
+		
 		<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 		<script src="js/phosom.js"></script>
 		<script src="http://code.jquery.com/mobile/1.4.0-beta.1/jquery.mobile-1.4.0-beta.1.min.js"></script>
@@ -64,7 +65,17 @@
 				<h2>one challenge!</h2>
 				<div data-role="collapsible-set">
 					<div data-role="collapsible" data-collapsed="false">
-						<h3>Post URL to an image</h3>
+						<h3>Find a response image</h3>
+						<form action="/imagesearch" method="post" id="image-search">
+							<label for="input-image-search">Image search:</label>
+							<input type="search" name="image-search" id="input-image-search" value="" 
+								placeholder="Image search keyword(s)..." />
+							<input type="submit" value="Find some!" />
+						</form>
+						<div class="gallery"></div>
+					</div>
+					<div data-role="collapsible">
+						<h3>Post an URL to a response image</h3>
 						<form action="/respondwithurl" method="post" id="respond-with-url">
 							<label for="challenge-response-with-url">URL to an image:</label>
 							<input type="text" name="url" id="challenge-response-with-url" value="" />
@@ -72,13 +83,9 @@
 						</form>
 					</div>
 					<div data-role="collapsible">
-						<h3>Upload an image</h3>
-						<label for="file">Image file:</label>
+						<h3>Upload a response image</h3>
+						<label for="file">Image file (TODO):</label>
 						<input type="file" name="image" id="image" value="">
-					</div>
-					<div data-role="collapsible">
-						<h3>Googl'it</h3>
-						<p>To implement...</p>
 					</div>
 				</div>
 			</div>
