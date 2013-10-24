@@ -89,11 +89,12 @@ public class AutoChallengeGameServiceEndpoint {
 				if( 0 == oneChallenge.getPoints() ) {
 					// if zero points / score, let's assume it hasn't been calculated, but
 					//  it can indeed have been calculated as zero but then we'll just calculate again
-					int score = getScoreFromImageUrls(
+					setScoreFromImageUrls(
 							playerPhotoInfo.getChallengePhotoUrl(), 
-							playerPhotoInfo.getResponsePhotoUrl());
-					playerPhotoInfo.setScore( score ); // to be returned here
-					oneChallenge.setPoints(score); // to be saved along with the game
+							playerPhotoInfo.getResponsePhotoUrl(),
+							playerPhotoInfo);
+//					playerPhotoInfo.setScore( score ); // to be returned here
+					oneChallenge.setPoints(playerPhotoInfo.getScore()); // to be saved along with the game
 				}
 			} else {
 				// let's get the player's name as it's not the current logged in player
@@ -222,20 +223,87 @@ public class AutoChallengeGameServiceEndpoint {
 		}
 		return host + "/pia/analyze/similarity?url1=" + url1 + "&url2=" + url2;
 	}
-	private int getScoreFromImageUrls( String url1, String url2 ) throws JSONException, IOException {
+	private void setScoreFromImageUrls( 
+			String url1, String url2, ChallengeAndResponseInfo photoInfo ) throws JSONException, IOException {
 		int score = 0;
 		if( null != url1 && null != url2 ) {
 			URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
 			JSONObject similarityResult = new JSONObject( 
 					IOUtils.toString(analysisUrl, "ISO-8859-1") );
-			double distance = 1000 * similarityResult.getDouble("distance");
+			JSONObject distanceValues = similarityResult.getJSONObject("distanceValues");
+			double distance = 1000 * distanceValues.getDouble("euclidean");
 			if( distance > 1000.0 ) {
 				distance = 1000.0;
 			}
 			// the maximum score is 10 and let's subtract the distance from it
 			//  to give the overall score:
-			score = (int) Math.round( 1000 - distance );	
+			score = (int) Math.round( 1000 - distance );
+			photoInfo.setScore(score);
+			photoInfo.setExtraScoreInfo( getExtraScoreInfo(similarityResult) );
 		}
-		return score;
+	}
+	private String getExtraScoreInfo( JSONObject similarityResult ) {
+		JSONObject distanceValues = similarityResult.getJSONObject("distanceValues");
+		StringBuilder sb = new StringBuilder();
+		sb.append("<ul>");
+		sb.append("<li>").append(
+				"arccos: "+distanceValues.getDouble("arccos"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"bhattacharyya: "+distanceValues.getDouble("bhattacharyya")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("bhattacharyya")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"chiSquare: "+distanceValues.getDouble("chiSquare")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("chiSquare")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"cityBlock: "+distanceValues.getDouble("cityBlock"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"correlation: "+distanceValues.getDouble("correlation")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("correlation")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"cosineDist: "+distanceValues.getDouble("cosineDist"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"cosineSim: "+distanceValues.getDouble("cosineSim")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("cosineSim")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"euclidean: "+distanceValues.getDouble("euclidean")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("euclidean")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"hamming: "+distanceValues.getDouble("hamming"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"intersection: "+distanceValues.getDouble("intersection")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("intersection")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"jaccardDistance: "+distanceValues.getDouble("jaccardDistance")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("jaccardDistance")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"packedHamming: "+distanceValues.getDouble("packedHamming"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"sumSquare: "+distanceValues.getDouble("sumSquare")+
+				", score: <strong>"+Math.round(1000 - 1000*distanceValues.getDouble("sumSquare")) + "</strong>" )
+				.append("</li>");
+		sb.append("<li>").append(
+				"symmetricKLDivergence: "+distanceValues.getString("symmetricKLDivergence"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"featureMatchesCountBasic: "+similarityResult.getInt("featureMatchesCountBasic"))
+				.append("</li>");
+		sb.append("<li>").append(
+				"featureMatchesCountRANSAC: "+similarityResult.getInt("featureMatchesCountRANSAC") + 
+				", score?: <strong>" + (100*similarityResult.getInt("featureMatchesCountRANSAC")) + "</strong>" )
+				.append("</li>");
+		sb.append("</ul>");
+		return sb.toString();
 	}
 }

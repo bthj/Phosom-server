@@ -294,6 +294,9 @@
           },
           "playerName" : {
             "type" : "string"
+          },
+          "extraScoreInfo" : {
+            "type" : "string"
           }
         }
       },

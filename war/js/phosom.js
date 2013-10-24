@@ -253,6 +253,13 @@ $( document ).ready(function(){
 					'src':oneChallenge.responsePhotoUrl, 'style':'padding:5px;'}) );
 				$oneDIV.append( $('<h3/>',{'text':'Grade: ' + oneChallenge.score}) );
 				
+				var $collapsibleSetDIV = $('<div/>', {'data-role': 'collapsible-set'});
+				var $collapsibleDIV = $('<div/>', {'data-role':'collapsible', 'data-collapsed':'true'});
+				$collapsibleDIV.append( $('<h3/>', {'text': 'Alternative scores'}) );
+				$collapsibleDIV.append( oneChallenge.extraScoreInfo );
+				$collapsibleSetDIV.append( $collapsibleDIV );
+				$oneDIV.append( $collapsibleSetDIV );
+				
 				$oneLI.append( $oneDIV );
 				$listview.append( $oneLI );
 			});

@@ -9,6 +9,7 @@ public class ChallengeAndResponseInfo {
 	private Integer score;
 	private String gameInfo;
 	private String playerName;
+	private String extraScoreInfo;
 
 	
 	public Long getParentGameId() {
@@ -52,6 +53,12 @@ public class ChallengeAndResponseInfo {
 	}
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
+	}
+	public String getExtraScoreInfo() {
+		return extraScoreInfo;
+	}
+	public void setExtraScoreInfo(String extraScoreInfo) {
+		this.extraScoreInfo = extraScoreInfo;
 	}
 
 }
