@@ -49,7 +49,7 @@ $( document ).ready(function(){
     
 	
     
-    // button events
+    ///// button events
 	
 	$('#btn-create-game').click(function(){
 		
@@ -61,6 +61,11 @@ $( document ).ready(function(){
 	$('#btn-game-overview').click(function(){
 		
 		navigateToPageOrLoginIfNeeded( 'phosom-challenges-overview' );
+	});
+	
+	$('#btn-game-join').click(function(){
+		
+		navigateToPageOrLoginIfNeeded( 'phosom-game-join' );
 	});
 	
 	
@@ -97,6 +102,28 @@ $( document ).ready(function(){
 		return false;
 	});
 	
+	$('#form-game-join').submit(function(){
+		$.mobile.loading( 'show', { text: 'Joining game...', textVisible:true});
+		
+		var gameId = $(this).find('#text-game-id').val();
+		
+		gapi.client.autochallengegameendpoint.getAutoChallengeGame({
+			'id': gameId
+		}).execute(function(game){
+			
+			if( game ) {
+				
+				g_activeGame = game;
+				
+				addCurrentPlayerToCurrentGameAndShowChallenge();
+			} else {
+				alert("No game found with that ID");
+			}
+		});		
+		
+		return false;
+	});
+	
 	function setCurrentGameIdFromChallengeLink(event, ui) {
 		event.preventDefault();
 		gapi.client.autochallengegameendpoint.getAutoChallengeGame({
@@ -110,7 +137,18 @@ $( document ).ready(function(){
 	}
 	
 	
-	// page events
+	///// page events
+	
+	function addCurrentPlayerToCurrentGameAndShowChallenge() {
+		gapi.client.autoChallengeGameService.addPlayerToGame({
+			'gameId':g_activeGame.key.id,
+			'playerId':g_activeUser.key.id
+		}).execute(function(playerAddedResp){
+			
+			$.mobile.loading( 'hide' );
+			$.mobile.changePage('#phosom-one-challenge');
+		});	
+	}
 	
 	$( "div#phosom-one-challenge" ).on( "pagebeforeshow", function( event, ui ) {
 		//$(this).find('h2').html(g_activeUser.playerScreenName + ", here's your challenge!");
@@ -145,16 +183,7 @@ $( document ).ready(function(){
 					g_activeGame = resp;
 					console.log(resp);
 					
-					gapi.client.autoChallengeGameService.addPlayerToGame({
-						'gameId':g_activeGame.key.id,
-						'playerId':g_activeUser.key.id
-					}).execute(function(playerAddedResp){
-						
-						console.log(playerAddedResp);
-						
-						$.mobile.loading( 'hide' );
-						$.mobile.changePage('#phosom-one-challenge');
-					});
+					addCurrentPlayerToCurrentGameAndShowChallenge();
 				});
 //				break;
 //				
@@ -213,6 +242,11 @@ $( document ).ready(function(){
 				var $oneLI = $('<li/>');
 				var $oneDIV = $('<div/>');
 				
+				if( oneChallenge.playerId == g_activeUser.key.id ) {
+					$oneDIV.append( $('<h3/>', {'text': "Your response"}) );
+				} else {
+					$oneDIV.append( $('<h3/>', {'text': oneChallenge.playerName + "'s response"}) );
+				}
 				$oneDIV.append( $('<img/>',{
 					'src':oneChallenge.challengePhotoUrl, 'style':'padding:5px;' }) );
 				$oneDIV.append( $('<img/>',{

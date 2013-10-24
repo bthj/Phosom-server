@@ -185,6 +185,7 @@ public class AutoChallengeGameServiceEndpoint {
 		
 		setUrlsFromChallengeBlobsToChallengeInfo(challenge, info, size);
 		info.setScore( challenge.getPoints() );
+		info.setPlayerId( challenge.getPlayerId() );
 		
 		return info;
 	}
@@ -205,6 +206,9 @@ public class AutoChallengeGameServiceEndpoint {
 		} catch( ImagesServiceFailureException e ) {
 			url = "";
 			// TODO: log...
+		} catch( IllegalArgumentException e ) { 
+			// happens if the blob that the key points to doesn't exist
+			url = "";
 		}
 		return url;
 	}

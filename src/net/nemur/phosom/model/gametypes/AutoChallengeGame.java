@@ -92,14 +92,34 @@ public class AutoChallengeGame extends Game {
 	
 
 	public void addPlayerToGame( Long playerId ) {
-		Challenge challenge = new Challenge();
-		challenge.setPlayerId(playerId);
-		
-		challenge.setAssignmentBlobKey(getChallengePhotoBlobKey());
-		challenge.setAssignmentBucketName(BUCKET_NAME_AUTO_CHALLENGE);
-		challenge.setAssignmentFileName(getChallengeFileName());
-		
-		getChallenges().add(challenge);
+		// let's check if the player has already played this game
+		Challenge challenge = null;
+		for( Challenge oneChallenge : getChallenges() ) {
+			if( playerId.equals(oneChallenge.getPlayerId()) ) {
+				challenge = oneChallenge;
+				
+				if( null != challenge.getResponseBlobKey() ) {
+					// let's delete already stored response from storage
+					BlobstoreServiceFactory.getBlobstoreService().delete(
+							challenge.getResponseBlobKey() );
+					challenge.setResponseBlobKey(null);
+					challenge.setResponseBucketName(null);
+					challenge.setResponseFileName(null);
+				}
+				break;
+			}
+		}
+		if( null == challenge ) {
+			challenge = new Challenge();
+			
+			challenge.setPlayerId(playerId);
+			
+			challenge.setAssignmentBlobKey(getChallengePhotoBlobKey());
+			challenge.setAssignmentBucketName(BUCKET_NAME_AUTO_CHALLENGE);
+			challenge.setAssignmentFileName(getChallengeFileName());
+			
+			getChallenges().add(challenge);
+		}
 	}
 	
 

@@ -3,6 +3,7 @@ package net.nemur.phosom.model;
 public class ChallengeAndResponseInfo {
 	
 	private Long parentGameId;
+	private Long playerId;
 	private String challengePhotoUrl;
 	private String responsePhotoUrl;
 	private Integer score;
@@ -15,6 +16,12 @@ public class ChallengeAndResponseInfo {
 	}
 	public void setParentGameId(Long parentGameId) {
 		this.parentGameId = parentGameId;
+	}
+	public Long getPlayerId() {
+		return playerId;
+	}
+	public void setPlayerId(Long playerId) {
+		this.playerId = playerId;
 	}
 	public String getChallengePhotoUrl() {
 		return challengePhotoUrl;

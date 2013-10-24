@@ -276,6 +276,10 @@
             "type" : "string",
             "format" : "int64"
           },
+          "playerId" : {
+            "type" : "string",
+            "format" : "int64"
+          },
           "challengePhotoUrl" : {
             "type" : "string"
           },
