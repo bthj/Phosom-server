@@ -48,27 +48,6 @@
         "body" : "empty"
       }
     },
-    "playerendpoint.getPlayer" : {
-      "path" : "player/{id}",
-      "httpMethod" : "GET",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.getPlayer",
-      "request" : {
-        "parameters" : {
-          "id" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "playerendpoint.listPlayer" : {
       "path" : "player",
       "httpMethod" : "GET",
@@ -86,6 +65,27 @@
           "limit" : {
             "type" : "int32",
             "required" : false
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "playerendpoint.getPlayer" : {
+      "path" : "player/{id}",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.PlayerEndpoint.getPlayer",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
           }
         },
         "body" : "empty"
@@ -129,6 +129,21 @@
   },
   "descriptor" : {
     "schemas" : {
+      "CollectionResponse_Player" : {
+        "id" : "CollectionResponse_Player",
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Player"
+            }
+          },
+          "nextPageToken" : {
+            "type" : "string"
+          }
+        }
+      },
       "Player" : {
         "id" : "Player",
         "type" : "object",
@@ -161,29 +176,14 @@
           "name" : {
             "type" : "string"
           },
-          "complete" : {
-            "type" : "boolean"
-          },
           "namespace" : {
             "type" : "string"
           },
+          "complete" : {
+            "type" : "boolean"
+          },
           "parent" : {
             "$ref" : "Key"
-          }
-        }
-      },
-      "CollectionResponse_Player" : {
-        "id" : "CollectionResponse_Player",
-        "type" : "object",
-        "properties" : {
-          "items" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "Player"
-            }
-          },
-          "nextPageToken" : {
-            "type" : "string"
           }
         }
       }
@@ -191,14 +191,14 @@
     "methods" : {
       "net.nemur.phosom.model.PlayerEndpoint.removePlayer" : {
       },
-      "net.nemur.phosom.model.PlayerEndpoint.getPlayer" : {
-        "response" : {
-          "$ref" : "Player"
-        }
-      },
       "net.nemur.phosom.model.PlayerEndpoint.listPlayer" : {
         "response" : {
           "$ref" : "CollectionResponse_Player"
+        }
+      },
+      "net.nemur.phosom.model.PlayerEndpoint.getPlayer" : {
+        "response" : {
+          "$ref" : "Player"
         }
       },
       "net.nemur.phosom.model.PlayerEndpoint.updatePlayer" : {
