@@ -170,12 +170,12 @@ public class AutoChallengeGame extends Game {
 		
 		// get the URL
 		URL url = new URL( urlString );
-//		HttpURLConnection httpConn = (HttpURLConnection) challengeUrl.openConnection();
-//		httpConn.setConnectTimeout(15 * 1000);
-//		httpConn.connect();
+		HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+		httpConn.setConnectTimeout(30 * 1000);
+		httpConn.connect();
 		
-//		byte[] photoBytes = IOUtils.toByteArray(httpConn.getInputStream());
-		byte[] photoBytes = IOUtils.toByteArray(url);
+		byte[] photoBytes = IOUtils.toByteArray(httpConn.getInputStream());
+//		byte[] photoBytes = IOUtils.toByteArray(url);
 		// resize photo
 		ImagesService imagesService = ImagesServiceFactory.getImagesService();
 		Image originalImage = ImagesServiceFactory.makeImage(photoBytes);
@@ -228,7 +228,7 @@ public class AutoChallengeGame extends Game {
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
-		httpConn.setConnectTimeout(15 * 1000);
+		httpConn.setConnectTimeout(30 * 1000);
 		httpConn.connect();
 	
 		BufferedReader in = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));

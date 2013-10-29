@@ -284,6 +284,16 @@ $( document ).ready(function(){
 		}
 		return 0;
 	}
+	function getGradeFromJSHammingDistance( distance ) {
+		// let's assume 0.400 is the maximum distance
+		var maxDistance = 0.400;
+		if( distance > maxDistance ) {
+			distance = maxDistance;
+		}
+		var percentageOfMaximumDistance = distance / maxDistance;
+		var grade = Math.round(1000 * (1 - percentageOfMaximumDistance));
+		return grade;
+	}
 	$( "div#phosom-challenge-result" ).on( "pageshow", function( event, ui ) {
 		var $content = $(this).find( 'div[data-role="content"]' );
 		$.mobile.loading( 'show', { text: 'Getting grades...', textVisible:true});
@@ -342,7 +352,18 @@ $( document ).ready(function(){
 			$content.append( $('<a/>', {
 				'href':'#phosom-index', 'data-role':'button', 'text':'Go home...'}) );
 			
-			$.mobile.loading( 'hide' );
+			$listview.waitForImages(function(){
+				
+				$(this).children('li').each(function(){
+					var img1 = $(this).find('img')[0];
+					var img2 = $(this).find('img')[1];
+					var hammingDistance = simi.compare(img1, img2);
+					var jsGrade = getGradeFromJSHammingDistance(hammingDistance);
+					$(this).find('h3:eq(1)').after($('<h3/>',{'text':'JS Grade: ' + jsGrade + ' (calculated distance: ' + hammingDistance + ')'}));
+				});
+				
+				$.mobile.loading( 'hide' );
+			});
 			
 			$content.trigger('create');
 		});

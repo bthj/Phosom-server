@@ -1,6 +1,10 @@
 package net.nemur.phosom.model.gametypes;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -214,22 +218,39 @@ public class AutoChallengeGameServiceEndpoint {
 		return url;
 	}
 	
+	// TODO:  cloned from AutoChallengeGame - merge!
+	private String getStringFromUrl( String url ) throws MalformedURLException, IOException {
+		StringBuilder stringBuilder = new StringBuilder();
+		URL restUrl = new URL(url);
+		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
+		httpConn.setConnectTimeout(30 * 1000);
+		httpConn.connect();
+	
+		BufferedReader in = new BufferedReader(new InputStreamReader(httpConn.getInputStream()));
+		String inputLine;
+		while( (inputLine = in.readLine()) != null ) {
+			stringBuilder.append(inputLine);
+		}
+		in.close();
+		return stringBuilder.toString();
+	}
 	private String getImageAnalysisUrlString( String url1, String url2 ) {
 		String host; // TODO: from config...
 		if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
 			host = "http://image.phosom.nemur.net";
 		} else {
-			host = "http://localhost:8080";
+			host = "http://localhost:8080/pia";
 		}
-		return host + "/pia/analyze/similarity?url1=" + url1 + "&url2=" + url2;
+		return host + "/analyze/similarity?url1=" + url1 + "&url2=" + url2;
 	}
 	private void setScoreFromImageUrls( 
 			String url1, String url2, ChallengeAndResponseInfo photoInfo ) throws JSONException, IOException {
 		int score = 0;
 		if( null != url1 && null != url2 ) {
-			URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
+//			URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
 			JSONObject similarityResult = new JSONObject( 
-					IOUtils.toString(analysisUrl, "ISO-8859-1") );
+					getStringFromUrl( getImageAnalysisUrlString(url1, url2) ) );
+//					IOUtils.toString(analysisUrl, "ISO-8859-1") );
 			JSONObject distanceValues = similarityResult.getJSONObject("distanceValues");
 			double distance = 1000 * distanceValues.getDouble("euclidean");
 			if( distance > 1000.0 ) {
