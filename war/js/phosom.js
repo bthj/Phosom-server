@@ -116,8 +116,9 @@ $( document ).ready(function(){
 	
 	function setCurrentGameIdFromChallengeLink(event, ui) {
 		event.preventDefault();
+		var gameId = $(this).data('gameid');
 		gapi.client.autochallengegameendpoint.getAutoChallengeGame({
-			'id': $(this).data('gameid')
+			'id': gameId
 		}).execute(function(game){
 			
 			g_activeGame = game;
@@ -202,10 +203,6 @@ $( document ).ready(function(){
 		});	
 	}
 	
-	$( "div#phosom-one-challenge" ).on( "pagebeforeshow", function( event, ui ) {
-		//$(this).find('h2').html(g_activeUser.playerScreenName + ", here's your challenge!");
-	});
-	
 
 	$( "div#phosom-index" ).on( "pageshow", function( event, ui ) {
 		// let's have the buttons disabled until all APIs have loaded
@@ -245,15 +242,9 @@ $( document ).ready(function(){
 	});
 	
 
-	$( "div#phosom-one-challenge" ).on( "pagebeforeshow", function( event, ui ) {
+	$( "div#phosom-one-challenge" ).on( "pageshow", function( event, ui ) {
 		
 		var $content = $( 'div#phosom-one-challenge div[data-role="content"]' );
-		
-		$content.prepend( $('<h2/>').text('Game # ' + g_activeGame.key.id + " - " +g_activeUser.playerScreenName+ ", here's your challenge!") );
-		$content.append( $('<a/>', {
-			'href':'#phosom-challenge-response', 
-			'data-role':'button',
-			'text':'Respond to it!'}) );
 		
 		$.mobile.loading( 'show', { text: 'Fetching the challenge...', textVisible:true});
 		gapi.client.gameService.getChallengePhotoUrl({
@@ -263,11 +254,22 @@ $( document ).ready(function(){
 		}).execute(function(urlResp){
 		
 			console.log(urlResp);
+			
+			$content.prepend( $('<h2/>').text('Game # ' + g_activeGame.key.id + " - " +g_activeUser.playerScreenName+ ", here's your challenge!") );
+			$content.append( $('<a/>', {
+				'href':'#phosom-challenge-response', 
+				'data-role':'button',
+				'text':'Respond to it!'}) );
 
 			$content.append( $('<img/>',{'src':urlResp.challengePhotoUrl}) );
-			$.mobile.loading( 'hide' );
+			
+			$content.waitForImages(function(){
+				
+				$.mobile.loading( 'hide' );
+			});
+			
+			$content.trigger('create');
 		});
-		$content.trigger('create');
 	});
 	
 	$( "div#phosom-challenge-response" ).on( "pagebeforeshow", function( event, ui ) {
@@ -353,15 +355,17 @@ $( document ).ready(function(){
 				'href':'#phosom-index', 'data-role':'button', 'text':'Go home...'}) );
 			
 			$listview.waitForImages(function(){
-				
-				$(this).children('li').each(function(){
-					var img1 = $(this).find('img')[0];
-					var img2 = $(this).find('img')[1];
-					var hammingDistance = simi.compare(img1, img2);
-					var jsGrade = getGradeFromJSHammingDistance(hammingDistance);
-					$(this).find('h3:eq(1)').after($('<h3/>',{'text':'JS Grade: ' + jsGrade + ' (calculated distance: ' + hammingDistance + ')'}));
-				});
-				
+//				
+//				$(this).children('li').each(function(){
+//					var img1 = $(this).find('img')[0];
+//					var img2 = $(this).find('img')[1];
+//					img1.crossOrigin="anonymous";
+//					img2.crossOrigin="anonymous";
+//					var hammingDistance = simi.compare(img1, img2);
+//					var jsGrade = getGradeFromJSHammingDistance(hammingDistance);
+//					$(this).find('h3:eq(1)').after($('<h3/>',{'text':'JS Grade: ' + jsGrade + ' (calculated distance: ' + hammingDistance + ')'}));
+//				});
+//				
 				$.mobile.loading( 'hide' );
 			});
 			

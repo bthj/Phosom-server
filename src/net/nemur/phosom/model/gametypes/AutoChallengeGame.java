@@ -43,8 +43,10 @@ import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
 
 import net.nemur.phosom.ImageServlet;
+import net.nemur.phosom.auxiliary.CachePhosom;
 import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.Game;
+import net.sf.jsr107cache.Cache;
 
 //@PersistenceCapable(identityType = IdentityType.APPLICATION)
 @PersistenceCapable
@@ -105,6 +107,7 @@ public class AutoChallengeGame extends Game {
 					challenge.setResponseBlobKey(null);
 					challenge.setResponseBucketName(null);
 					challenge.setResponseFileName(null);
+					challenge.setPoints(0);
 				}
 				break;
 			}
@@ -240,8 +243,17 @@ public class AutoChallengeGame extends Game {
 		return stringBuilder.toString();
 	}
 	private String getRandomImageUrlFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException {
-			
-		JSONObject jsonObject = new JSONObject( getStringFromUrl(flickrRestUrl) );
+		String flickrPhotosJSON;
+		Cache cache = CachePhosom.getInstance().getCache();
+		if( cache.containsKey(flickrRestUrl) ) {
+			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
+		} else {
+			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
+			cache.put(flickrRestUrl, flickrPhotosJSON);
+		}
+		
+		
+		JSONObject jsonObject = new JSONObject( flickrPhotosJSON );
 		JSONObject photosJson = jsonObject.getJSONObject("photos");
 		JSONArray photoArray = photosJson.getJSONArray("photo");
 		

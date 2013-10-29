@@ -56,6 +56,7 @@ public class GameServiceEndpoint {
 		ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
 		options.imageSize( size );
 		options.crop(false);
+		options.secureUrl(true);
 		try {
 			url = ImagesServiceFactory.getImagesService().getServingUrl(options);
 		} catch( ImagesServiceFailureException e ) {
