@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -52,6 +53,7 @@ import net.sf.jsr107cache.Cache;
 @PersistenceCapable
 @Inheritance(customStrategy = "complete-table")
 public class AutoChallengeGame extends Game {
+	private static final Logger log = Logger.getLogger(AutoChallengeGame.class.getName());
 	
 	public final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
 	public final String BUCKET_NAME_CHALLENGE_RESPONSES = "challenge-response-photos";
@@ -85,10 +87,11 @@ public class AutoChallengeGame extends Game {
 //		key = keyRange.getStart();
 //	}
 	
-	public void populateAutoChallengeUrl() throws JSONException, IOException {
+	public void populateAutoChallengeUrl() throws JSONException, IOException, InterruptedException {
 		// place ID found with http://www.flickr.com/services/api/explore/flickr.places.find
 		String placeId = "554890";
 		String flickrRestUrl = getFlickrRestUrlForPlaceId(placeId);
+		log.info( "Fetching Flickr JSON: " + flickrRestUrl );
 		setChallengeUrl( getRandomImageUrlFromFlicrRestResponse(flickrRestUrl) );		
 	}
 	
@@ -213,8 +216,9 @@ public class AutoChallengeGame extends Game {
 	}
 	
 	private String getFlickrRestUrlForPlaceId( String placeId ) {
-		return "http://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&extras=geo,owner_name,place_url&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
+		return "https://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
 	}
+	
 	private String getImageUrlFromFlickrPhotoObject( JSONObject flickrPhotoObject ) throws JSONException {
 		
 		int farm = flickrPhotoObject.getInt("farm");
@@ -230,6 +234,8 @@ public class AutoChallengeGame extends Game {
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
+		httpConn.setRequestMethod("GET");
+		httpConn.setRequestProperty("Accept", "application/json");
 		httpConn.setConnectTimeout(30 * 1000);
 		httpConn.connect();
 	
@@ -239,27 +245,45 @@ public class AutoChallengeGame extends Game {
 			stringBuilder.append(inputLine);
 		}
 		in.close();
+		httpConn.disconnect();
 		return stringBuilder.toString();
 	}
-	private String getRandomImageUrlFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException {
-		String flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
-//		Cache cache = CachePhosom.getInstance().getCache();
-//		if( cache.containsKey(flickrRestUrl) ) {
-//			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
-//		} else {
-//			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
-//			cache.put(flickrRestUrl, flickrPhotosJSON);
-//		}
+	
+	private String getRandomImageUrlFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException, InterruptedException {
+		String imageUrl = null;
 		
+		Cache cache = CachePhosom.getInstance().getCache();
+		String flickrPhotosJSON;
+		if( cache.containsKey(flickrRestUrl) ) {
+			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
+		} else {
+			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);	
+		}
 		
-		JSONObject jsonObject = new JSONObject( flickrPhotosJSON );
-		JSONObject photosJson = jsonObject.getJSONObject("photos");
-		JSONArray photoArray = photosJson.getJSONArray("photo");
-		
-		int photoArrayIndex = randInt(0, photoArray.length());
-		JSONObject photoObject = (JSONObject) photoArray.get(photoArrayIndex);
-		
-		return getImageUrlFromFlickrPhotoObject(photoObject);
+		JSONObject jsonObject = null;
+		for( int i=0; i < 5; i++ ) { // retry hack for when flickr api fails
+			try {
+				jsonObject = new JSONObject( flickrPhotosJSON );
+				// this JSON seems to parse fine, put it into the cahce
+				cache.put(flickrRestUrl, flickrPhotosJSON);
+				break;
+			} catch ( JSONException e ) {
+				Thread.sleep(1000);
+				log.info( "Caught error while parsing Flickr JSON, try again..." );
+				flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
+				continue;
+			}
+		}
+		if( null != jsonObject ) {
+			JSONObject photosJson = jsonObject.getJSONObject("photos");
+			JSONArray photoArray = photosJson.getJSONArray("photo");
+			
+			int photoArrayIndex = randInt(0, photoArray.length());
+			JSONObject photoObject = (JSONObject) photoArray.get(photoArrayIndex);
+			
+			imageUrl = getImageUrlFromFlickrPhotoObject(photoObject);	
+		}
+		return imageUrl;
 	}
 
 

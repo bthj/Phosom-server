@@ -44,7 +44,7 @@ public class AutoChallengeGameServiceEndpoint {
 	private static final int LISTVIEW_IMAGE_SQUARE_SIZE = 80;
 
 	@ApiMethod(name = "createGame", httpMethod = "POST")
-	public AutoChallengeGame createGame() throws JSONException, IOException {
+	public AutoChallengeGame createGame() throws JSONException, IOException, InterruptedException {
 		
 		AutoChallengeGame autoChallengeGame = new AutoChallengeGame();
 		autoChallengeGame.populateAutoChallengeUrl();
@@ -260,6 +260,8 @@ public class AutoChallengeGameServiceEndpoint {
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
+		httpConn.setRequestMethod("GET");
+		httpConn.setRequestProperty("Accept", "application/json");
 		if( null != requestProperties ) {
 			for( Map.Entry<String, String> oneRequestProperty : requestProperties.entrySet() ) {
 			    String key = oneRequestProperty.getKey();

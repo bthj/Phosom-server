@@ -246,6 +246,8 @@ $( document ).ready(function(){
 				// create a game with automatic challenge photo
 				gapi.client.autoChallengeGameService.createGame().execute(function(resp){
 					
+					console.log(resp);
+					
 					g_activeGame = resp;
 					console.log(resp);
 					
