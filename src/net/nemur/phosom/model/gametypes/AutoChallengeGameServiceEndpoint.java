@@ -7,7 +7,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
@@ -15,6 +17,7 @@ import javax.jdo.Query;
 
 import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.ChallengeAndResponseInfo;
+import net.nemur.phosom.model.ImageSearchResult;
 import net.nemur.phosom.model.PMF;
 import net.nemur.phosom.model.Player;
 import net.nemur.phosom.model.PlayerEndpoint;
@@ -22,6 +25,7 @@ import net.nemur.phosom.model.PlayerEndpoint;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
@@ -31,6 +35,7 @@ import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ImagesServiceFailureException;
 import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.appengine.api.utils.SystemProperty;
+
 
 // TODO: add client ID verification http://cloud-endpoints-slides.appspot.com/gdl_2012_08_08.html#8
 @Api(name = "autoChallengeGameService", version = "v1")
@@ -114,6 +119,37 @@ public class AutoChallengeGameServiceEndpoint {
 		
 		return challengesInfo;
 	}
+	
+	@ApiMethod(name = "searchForImagesAtBing", path="search_for_images_at_bing", httpMethod = HttpMethod.GET)
+	public List<ImageSearchResult> searchForImagesAtBing( @Named("query") String query ) throws MalformedURLException, IOException {
+		List<ImageSearchResult> imageSearchResults = null;
+		
+		Map<String, String> requestHeaderProperty = new HashMap<String, String>();
+		requestHeaderProperty.put( "Authorization", "Basic OlpGeDI1Wmh1c0lUTGVPZ3JTd2FLSzhzTVVoUlJ4cGxPSjMvME10NGcvdWs=" );
+		String queryUrl = "https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27"
+							+ query + "%27&Adult=%27Off%27&$format=json";
+		String resultString = getStringFromUrl( queryUrl, requestHeaderProperty );
+		JSONObject queryResponse = new JSONObject( resultString );
+		
+		JSONObject queryResponseD = queryResponse.getJSONObject( "d" );
+		if( null != queryResponseD ) {
+			imageSearchResults = new ArrayList<ImageSearchResult>();
+			JSONArray queryResults = queryResponseD.getJSONArray( "results" );
+			for( int i=0; i < queryResults.length(); i++ ) {
+				JSONArray imageResults = queryResults.getJSONObject( i ).getJSONArray( "Image" );
+				for(  int j=0; j < imageResults.length(); j++ ) {
+					JSONObject oneImageResult = imageResults.getJSONObject( j );
+					ImageSearchResult imageSearchResult = new ImageSearchResult();
+					imageSearchResult.setFullSizeImageUrl( oneImageResult.getString( "MediaUrl" ) );
+					imageSearchResult.setThumbnailUrl( oneImageResult.getJSONObject( "Thumbnail" ).getString( "MediaUrl" ) );
+					imageSearchResult.setAltText( oneImageResult.getString( "Title" ) );
+					imageSearchResults.add( imageSearchResult );
+				}
+			}
+		}
+		return imageSearchResults;
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	@ApiMethod(name = "listChallengesPlayedByPlayer", path="list_challenges_played_by_player", httpMethod = HttpMethod.GET)
@@ -220,10 +256,17 @@ public class AutoChallengeGameServiceEndpoint {
 	}
 	
 	// TODO:  cloned from AutoChallengeGame - merge!
-	private String getStringFromUrl( String url ) throws MalformedURLException, IOException {
+	private String getStringFromUrl( String url, Map<String, String> requestProperties ) throws MalformedURLException, IOException {
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
+		if( null != requestProperties ) {
+			for( Map.Entry<String, String> oneRequestProperty : requestProperties.entrySet() ) {
+			    String key = oneRequestProperty.getKey();
+			    String value = oneRequestProperty.getValue();
+			    httpConn.setRequestProperty( key, value );	
+			}
+		}
 		httpConn.setConnectTimeout(30 * 1000);
 		httpConn.connect();
 	
@@ -250,7 +293,7 @@ public class AutoChallengeGameServiceEndpoint {
 		if( null != url1 && null != url2 ) {
 //			URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
 			JSONObject similarityResult = new JSONObject( 
-					getStringFromUrl( getImageAnalysisUrlString(url1, url2) ) );
+					getStringFromUrl( getImageAnalysisUrlString(url1, url2), null ) );
 //					IOUtils.toString(analysisUrl, "ISO-8859-1") );
 			JSONObject distanceValues = similarityResult.getJSONObject("distanceValues");
 			double distance = 1000 * distanceValues.getDouble("euclidean");

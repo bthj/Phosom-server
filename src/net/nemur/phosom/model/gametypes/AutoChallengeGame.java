@@ -213,7 +213,7 @@ public class AutoChallengeGame extends Game {
 	}
 	
 	private String getFlickrRestUrlForPlaceId( String placeId ) {
-		return "http://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&extras=original_format,tags,description,geo,date_upload,owner_name,place_url&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
+		return "http://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&extras=geo,owner_name,place_url&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
 	}
 	private String getImageUrlFromFlickrPhotoObject( JSONObject flickrPhotoObject ) throws JSONException {
 		
@@ -227,7 +227,6 @@ public class AutoChallengeGame extends Game {
 		return "http://farm"+farm+".static.flickr.com/"+server+"/"+photoId+"_"+secret+"_"+format+"."+fileType;
 	}
 	private String getStringFromUrl( String url ) throws MalformedURLException, IOException {
-		// TODO: Use memcache
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
@@ -243,14 +242,14 @@ public class AutoChallengeGame extends Game {
 		return stringBuilder.toString();
 	}
 	private String getRandomImageUrlFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException {
-		String flickrPhotosJSON;
-		Cache cache = CachePhosom.getInstance().getCache();
-		if( cache.containsKey(flickrRestUrl) ) {
-			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
-		} else {
-			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
-			cache.put(flickrRestUrl, flickrPhotosJSON);
-		}
+		String flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
+//		Cache cache = CachePhosom.getInstance().getCache();
+//		if( cache.containsKey(flickrRestUrl) ) {
+//			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
+//		} else {
+//			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
+//			cache.put(flickrRestUrl, flickrPhotosJSON);
+//		}
 		
 		
 		JSONObject jsonObject = new JSONObject( flickrPhotosJSON );

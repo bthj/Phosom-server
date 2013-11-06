@@ -153,9 +153,25 @@ $( document ).ready(function(){
 		
 		var $this = $(this);
 		var query = $this.find('#input-image-search').val();
+		
+		gapi.client.autoChallengeGameService.searchForImagesAtBing({
+			'query': encodeURIComponent(query)
+		}).execute(function(searchResults){
+			console.log(searchResults);
+			var $gallery = $this.siblings('.gallery').first().empty();
+			$.each(searchResults.items, function(index, oneImageResult) {
+				var $a = $('<a/>', {'href':oneImageResult.fullSizeImageUrl, 'rel':'external', 'style':'padding:5px;'})
+							.on('click', respondWithUrlFromLink);
+				var $img = $('<img/>', {'src':oneImageResult.thumbnailUrl, 'alt':oneImageResult.altText});
+				$a.append( $img );
+				$gallery.append( $a );
+			});
+			$.mobile.loading( 'hide' );
+		});
+/*
         $.ajax({
             type: 'GET',
-            url: 'https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27'+query+'%27&Adult=%27Off%27',
+            url: 'https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27'+query+'%27&Adult=%27On%27',
             dataType: "json", 
             context: this,
             beforeSend: function(xhr){
@@ -185,6 +201,7 @@ $( document ).ready(function(){
             	$.mobile.loading( 'hide' );
             }
         });
+*/
         return false;
 	});
 	
@@ -355,7 +372,7 @@ $( document ).ready(function(){
 				'href':'#phosom-index', 'data-role':'button', 'text':'Go home...'}) );
 			
 			$listview.waitForImages(function(){
-//				
+				
 //				$(this).children('li').each(function(){
 //					var img1 = $(this).find('img')[0];
 //					var img2 = $(this).find('img')[1];
@@ -365,7 +382,7 @@ $( document ).ready(function(){
 //					var jsGrade = getGradeFromJSHammingDistance(hammingDistance);
 //					$(this).find('h3:eq(1)').after($('<h3/>',{'text':'JS Grade: ' + jsGrade + ' (calculated distance: ' + hammingDistance + ')'}));
 //				});
-//				
+				
 				$.mobile.loading( 'hide' );
 			});
 			
