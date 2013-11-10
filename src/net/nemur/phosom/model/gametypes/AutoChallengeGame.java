@@ -13,6 +13,9 @@ import java.nio.channels.Channels;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Embedded;
+import javax.jdo.annotations.EmbeddedOnly;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.Inheritance;
@@ -65,7 +68,14 @@ public class AutoChallengeGame extends Game {
 //	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 //	private Key key;
 	
-	@Persistent String challengeUrl;
+	@Persistent 
+	@Embedded(members = {
+			@Persistent(name="challengePhotoUrl", columns=@Column(name="challengePhotoUrl")),
+			@Persistent(name="challengeProfileUrl", columns=@Column(name="challengeProfileUrl")),
+			@Persistent(name="challengeOwnerName", columns=@Column(name="challengeOwnerName"))
+	})
+	ChallengeInfo challengeInfo;
+	
 	
 	@Persistent BlobKey challengePhotoBlobKey;
 	@Persistent String challengeFileName;
@@ -91,8 +101,7 @@ public class AutoChallengeGame extends Game {
 		// place ID found with http://www.flickr.com/services/api/explore/flickr.places.find
 		String placeId = "554890";
 		String flickrRestUrl = getFlickrRestUrlForPlaceId(placeId);
-		log.info( "Fetching Flickr JSON: " + flickrRestUrl );
-		setChallengeUrl( getRandomImageUrlFromFlicrRestResponse(flickrRestUrl) );		
+		setRandomChallengeInfoFromFlicrRestResponse( flickrRestUrl );		
 	}
 	
 
@@ -130,7 +139,7 @@ public class AutoChallengeGame extends Game {
 	
 
 	public void uploadChallengePhotoToCloudStorageAndSetBlobKey() throws IOException {
-		String fileName = getFileNameFromUrlString( getChallengeUrl() );
+		String fileName = getFileNameFromUrlString( getChallengeInfo().getChallengePhotoUrl() );
 //		GcsFilename gcsFilename = new GcsFilename(BUCKET_NAME_AUTO_CHALLENGE, fileName);
 		
 		// set a key to the Cloud Storage containing the challenge photo
@@ -149,10 +158,11 @@ public class AutoChallengeGame extends Game {
 //				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
 //		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
 		
-		uploadPhotoFromUrlToCloudStorage(getChallengeUrl(), BUCKET_NAME_AUTO_CHALLENGE, fileName);
+		uploadPhotoFromUrlToCloudStorage(getChallengeInfo().getChallengePhotoUrl(), BUCKET_NAME_AUTO_CHALLENGE, fileName);
 	}
 	
-	public void uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey( String url, Long playerId ) throws IOException {
+	public void uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey( 
+			String url, String sourceUrl, String sourceTitle, Long playerId ) throws IOException {
 		String fileName = getFileNameFromUrlString( url );
 		
 		BlobKey blobKey = getBlobKeyFromBucketAndFileName(BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
@@ -162,6 +172,8 @@ public class AutoChallengeGame extends Game {
 				oneChallenge.setResponseBlobKey(blobKey);
 				oneChallenge.setResponseBucketName(BUCKET_NAME_CHALLENGE_RESPONSES);
 				oneChallenge.setResponseFileName(fileName);
+				oneChallenge.setResponseSourceUrl( sourceUrl );
+				oneChallenge.setResponseSourceTitle( sourceTitle );
 				break;
 			}
 		}
@@ -216,7 +228,7 @@ public class AutoChallengeGame extends Game {
 	}
 	
 	private String getFlickrRestUrlForPlaceId( String placeId ) {
-		return "https://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
+		return "https://api.flickr.com/services/rest/?method=flickr.photos.search&place_id="+placeId+"&extras=original_format,description,geo,owner_name,place_url&format=json&nojsoncallback=1&api_key="+FLICKR_API_KEY;
 	}
 	
 	private String getImageUrlFromFlickrPhotoObject( JSONObject flickrPhotoObject ) throws JSONException {
@@ -230,7 +242,18 @@ public class AutoChallengeGame extends Game {
 		
 		return "http://farm"+farm+".static.flickr.com/"+server+"/"+photoId+"_"+secret+"_"+format+"."+fileType;
 	}
-	private String getStringFromUrl( String url ) throws MalformedURLException, IOException {
+	private String getProfileImageUrlFromFlickrPhotoObject( JSONObject flickrPhotoObject ) {
+		String ownerId = flickrPhotoObject.getString("owner");
+		String photoId = flickrPhotoObject.getString("id");
+		return "http://www.flickr.com/photos/" + ownerId + "/" + photoId;
+	}
+	private String getOwnerNameFromFlickrPhotoObject( JSONObject flickrPhotoObject ) {
+		return flickrPhotoObject.getString( "ownername" );
+	}
+	
+	private String getJsonFromUrl( String url ) throws MalformedURLException, IOException {
+		log.info( "Fetching JSON from : " + url );
+		
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
@@ -249,15 +272,17 @@ public class AutoChallengeGame extends Game {
 		return stringBuilder.toString();
 	}
 	
-	private String getRandomImageUrlFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException, InterruptedException {
-		String imageUrl = null;
+	private void setRandomChallengeInfoFromFlicrRestResponse( String flickrRestUrl ) throws JSONException, IOException, InterruptedException {
+		String challengeImageUrl = null;
+		String challengeImageProfileUrl = null;
+		String challengeImageOwnerName = null;
 		
 		Cache cache = CachePhosom.getInstance().getCache();
 		String flickrPhotosJSON;
 		if( cache.containsKey(flickrRestUrl) ) {
 			flickrPhotosJSON = (String) cache.get(flickrRestUrl);
 		} else {
-			flickrPhotosJSON = getStringFromUrl(flickrRestUrl);	
+			flickrPhotosJSON = getJsonFromUrl(flickrRestUrl);	
 		}
 		
 		JSONObject jsonObject = null;
@@ -270,7 +295,7 @@ public class AutoChallengeGame extends Game {
 			} catch ( JSONException e ) {
 				Thread.sleep(1000);
 				log.info( "Caught error while parsing Flickr JSON, try again..." );
-				flickrPhotosJSON = getStringFromUrl(flickrRestUrl);
+				flickrPhotosJSON = getJsonFromUrl(flickrRestUrl);
 				continue;
 			}
 		}
@@ -281,9 +306,15 @@ public class AutoChallengeGame extends Game {
 			int photoArrayIndex = randInt(0, photoArray.length());
 			JSONObject photoObject = (JSONObject) photoArray.get(photoArrayIndex);
 			
-			imageUrl = getImageUrlFromFlickrPhotoObject(photoObject);	
+			challengeImageUrl = getImageUrlFromFlickrPhotoObject(photoObject);	
+			challengeImageProfileUrl = getProfileImageUrlFromFlickrPhotoObject( photoObject );
+			challengeImageOwnerName = getOwnerNameFromFlickrPhotoObject( photoObject );
 		}
-		return imageUrl;
+		ChallengeInfo challengeInfo = new ChallengeInfo();
+		challengeInfo.setChallengePhotoUrl( challengeImageUrl );
+		challengeInfo.setChallengeProfileUrl( challengeImageProfileUrl );
+		challengeInfo.setChallengeOwnerName( challengeImageOwnerName );
+		setChallengeInfo( challengeInfo );
 	}
 
 
@@ -337,13 +368,43 @@ public class AutoChallengeGame extends Game {
 	}
 	
 	
+	@PersistenceCapable(identityType = IdentityType.DATASTORE, detachable = "true")
+	@EmbeddedOnly
+	public static class ChallengeInfo {
+
+		@Persistent private String challengePhotoUrl;
+		@Persistent private String challengeProfileUrl;
+		@Persistent private String challengeOwnerName;
+		
+		public String getChallengePhotoUrl() {
+			return challengePhotoUrl;
+		}
+		public void setChallengePhotoUrl( String challengePhotoUrl ) {
+			this.challengePhotoUrl = challengePhotoUrl;
+		}
+		public String getChallengeProfileUrl() {
+			return challengeProfileUrl;
+		}
+		public void setChallengeProfileUrl( String challengeProfileUrl ) {
+			this.challengeProfileUrl = challengeProfileUrl;
+		}
+		public String getChallengeOwnerName() {
+			return challengeOwnerName;
+		}
+		public void setChallengeOwnerName( String challengeOwnerName ) {
+			this.challengeOwnerName = challengeOwnerName;
+		}
+	}
 	
-	public String getChallengeUrl() {
-		return challengeUrl;
+	
+	public ChallengeInfo getChallengeInfo() {
+		return challengeInfo;
 	}
-	public void setChallengeUrl(String challengeUrl) {
-		this.challengeUrl = challengeUrl;
+
+	public void setChallengeInfo( ChallengeInfo challengeInfo ) {
+		this.challengeInfo = challengeInfo;
 	}
+
 	public BlobKey getChallengePhotoBlobKey() {
 		return challengePhotoBlobKey;
 	}

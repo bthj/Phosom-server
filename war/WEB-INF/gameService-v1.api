@@ -71,7 +71,19 @@
           "challengePhotoUrl" : {
             "type" : "string"
           },
+          "challengePhotoSourceUrl" : {
+            "type" : "string"
+          },
+          "challengePhotoSourceTitle" : {
+            "type" : "string"
+          },
           "responsePhotoUrl" : {
+            "type" : "string"
+          },
+          "responsePhotoSourceUrl" : {
+            "type" : "string"
+          },
+          "responsePhotoSourceTitle" : {
             "type" : "string"
           },
           "score" : {

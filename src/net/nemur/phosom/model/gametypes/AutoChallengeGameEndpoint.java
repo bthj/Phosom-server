@@ -83,7 +83,12 @@ public class AutoChallengeGameEndpoint {
 		PersistenceManager mgr = getPersistenceManager();
 		AutoChallengeGame autochallengegame = null;
 		try {
-			autochallengegame = mgr.getObjectById(AutoChallengeGame.class, id);
+			AutoChallengeGame autochallengegameTemp = mgr.getObjectById(AutoChallengeGame.class, id);
+			// let's eagerly fetch all challenges before closing the connection
+			for( Challenge oneChallenge : autochallengegameTemp.getChallenges() )
+				;
+			autochallengegameTemp.getChallengeInfo();
+			autochallengegame = mgr.detachCopy( autochallengegameTemp );
 		} finally {
 			mgr.close();
 		}
@@ -169,7 +174,7 @@ public class AutoChallengeGameEndpoint {
 		return contains;
 	}
 
-	private static PersistenceManager getPersistenceManager() {
+	protected static PersistenceManager getPersistenceManager() {
 		return PMF.get().getPersistenceManager();
 	}
 

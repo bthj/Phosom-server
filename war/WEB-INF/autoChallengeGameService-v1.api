@@ -25,7 +25,7 @@
   },
   "methods" : {
     "autoChallengeGameService.respondToChallengeWithUrl" : {
-      "path" : "respondToChallengeWithUrl/{gameId}/{playerId}/{url}",
+      "path" : "respondToChallengeWithUrl/{gameId}/{playerId}/{url}/{sourceurl}/{sourcetitle}",
       "httpMethod" : "POST",
       "authLevel" : "NONE",
       "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
@@ -43,6 +43,14 @@
             "required" : true
           },
           "url" : {
+            "type" : "string",
+            "required" : true
+          },
+          "sourceurl" : {
+            "type" : "string",
+            "required" : true
+          },
+          "sourcetitle" : {
             "type" : "string",
             "required" : true
           }
@@ -120,27 +128,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "autoChallengeGameService.getAutoChallengeGame" : {
-      "path" : "get_game",
-      "httpMethod" : "GET",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.getAutoChallengeGame",
-      "request" : {
-        "parameters" : {
-          "id" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "autoChallengeGameService.createGame" : {
       "path" : "createGame",
       "httpMethod" : "POST",
@@ -207,13 +194,16 @@
           "BUCKET_NAME_CHALLENGE_RESPONSES" : {
             "type" : "string"
           },
-          "challengeUrl" : {
-            "type" : "string"
+          "challengeInfo" : {
+            "$ref" : "ChallengeInfo"
           },
           "challengePhotoBlobKey" : {
             "$ref" : "BlobKey"
           },
           "challengeFileName" : {
+            "type" : "string"
+          },
+          "randomChallengeInfoFromFlicrRestResponse" : {
             "type" : "string"
           }
         }
@@ -235,14 +225,14 @@
           "name" : {
             "type" : "string"
           },
+          "parent" : {
+            "$ref" : "Key"
+          },
           "complete" : {
             "type" : "boolean"
           },
           "namespace" : {
             "type" : "string"
-          },
-          "parent" : {
-            "$ref" : "Key"
           }
         }
       },
@@ -275,6 +265,12 @@
           "responseFileName" : {
             "type" : "string"
           },
+          "responseSourceUrl" : {
+            "type" : "string"
+          },
+          "responseSourceTitle" : {
+            "type" : "string"
+          },
           "points" : {
             "type" : "integer"
           }
@@ -285,6 +281,21 @@
         "type" : "object",
         "properties" : {
           "keyString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ChallengeInfo" : {
+        "id" : "ChallengeInfo",
+        "type" : "object",
+        "properties" : {
+          "challengePhotoUrl" : {
+            "type" : "string"
+          },
+          "challengeProfileUrl" : {
+            "type" : "string"
+          },
+          "challengeOwnerName" : {
             "type" : "string"
           }
         }
@@ -304,7 +315,19 @@
           "challengePhotoUrl" : {
             "type" : "string"
           },
+          "challengePhotoSourceUrl" : {
+            "type" : "string"
+          },
+          "challengePhotoSourceTitle" : {
+            "type" : "string"
+          },
           "responsePhotoUrl" : {
+            "type" : "string"
+          },
+          "responsePhotoSourceUrl" : {
+            "type" : "string"
+          },
+          "responsePhotoSourceTitle" : {
             "type" : "string"
           },
           "score" : {
@@ -345,6 +368,12 @@
           },
           "altText" : {
             "type" : "string"
+          },
+          "sourceUrl" : {
+            "type" : "string"
+          },
+          "sourceTitle" : {
+            "type" : "string"
           }
         }
       },
@@ -380,11 +409,6 @@
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.searchForImagesAtBing" : {
         "response" : {
           "$ref" : "ImageSearchResultCollection"
-        }
-      },
-      "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.getAutoChallengeGame" : {
-        "response" : {
-          "$ref" : "AutoChallengeGame"
         }
       },
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.createGame" : {

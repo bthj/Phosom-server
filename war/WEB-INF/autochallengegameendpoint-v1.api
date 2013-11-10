@@ -94,22 +94,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "autochallengegameendpoint.insertAutoChallengeGame" : {
-      "path" : "autochallengegame",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame",
-      "request" : {
-        "body" : "autoTemplate(backendRequest)",
-        "bodyName" : "resource"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "autochallengegameendpoint.updateAutoChallengeGame" : {
       "path" : "autochallengegame",
       "httpMethod" : "PUT",
@@ -118,6 +102,22 @@
       "audiences" : [ ],
       "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
       "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "autochallengegameendpoint.insertAutoChallengeGame" : {
+      "path" : "autochallengegame",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame",
       "request" : {
         "body" : "autoTemplate(backendRequest)",
         "bodyName" : "resource"
@@ -163,13 +163,16 @@
           "BUCKET_NAME_CHALLENGE_RESPONSES" : {
             "type" : "string"
           },
-          "challengeUrl" : {
-            "type" : "string"
+          "challengeInfo" : {
+            "$ref" : "ChallengeInfo"
           },
           "challengePhotoBlobKey" : {
             "$ref" : "BlobKey"
           },
           "challengeFileName" : {
+            "type" : "string"
+          },
+          "randomChallengeInfoFromFlicrRestResponse" : {
             "type" : "string"
           }
         }
@@ -191,14 +194,14 @@
           "name" : {
             "type" : "string"
           },
+          "parent" : {
+            "$ref" : "Key"
+          },
           "complete" : {
             "type" : "boolean"
           },
           "namespace" : {
             "type" : "string"
-          },
-          "parent" : {
-            "$ref" : "Key"
           }
         }
       },
@@ -231,6 +234,12 @@
           "responseFileName" : {
             "type" : "string"
           },
+          "responseSourceUrl" : {
+            "type" : "string"
+          },
+          "responseSourceTitle" : {
+            "type" : "string"
+          },
           "points" : {
             "type" : "integer"
           }
@@ -241,6 +250,21 @@
         "type" : "object",
         "properties" : {
           "keyString" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ChallengeInfo" : {
+        "id" : "ChallengeInfo",
+        "type" : "object",
+        "properties" : {
+          "challengePhotoUrl" : {
+            "type" : "string"
+          },
+          "challengeProfileUrl" : {
+            "type" : "string"
+          },
+          "challengeOwnerName" : {
             "type" : "string"
           }
         }
@@ -259,7 +283,7 @@
           "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame" : {
         "request" : {
           "$ref" : "AutoChallengeGame"
         },
@@ -267,7 +291,7 @@
           "$ref" : "AutoChallengeGame"
         }
       },
-      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.updateAutoChallengeGame" : {
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameEndpoint.insertAutoChallengeGame" : {
         "request" : {
           "$ref" : "AutoChallengeGame"
         },

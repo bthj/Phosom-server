@@ -24,6 +24,8 @@ public class Challenge {
 	@Persistent private BlobKey responseBlobKey;
 	@Persistent private String responseBucketName;
 	@Persistent private String responseFileName;
+	@Persistent private String responseSourceUrl;
+	@Persistent private String responseSourceTitle;
 	
 	@Persistent private int points;
 	
@@ -82,5 +84,17 @@ public class Challenge {
 	}
 	public void setResponseFileName(String responseFileName) {
 		this.responseFileName = responseFileName;
+	}
+	public String getResponseSourceUrl() {
+		return responseSourceUrl;
+	}
+	public void setResponseSourceUrl( String responseSourceUrl ) {
+		this.responseSourceUrl = responseSourceUrl;
+	}
+	public String getResponseSourceTitle() {
+		return responseSourceTitle;
+	}
+	public void setResponseSourceTitle( String responseSourceTitle ) {
+		this.responseSourceTitle = responseSourceTitle;
 	}	
 }

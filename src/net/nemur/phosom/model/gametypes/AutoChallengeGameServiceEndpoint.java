@@ -14,6 +14,7 @@ import java.util.Map;
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
+import javax.persistence.EntityNotFoundException;
 
 import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.ChallengeAndResponseInfo;
@@ -42,6 +43,8 @@ import com.google.appengine.api.utils.SystemProperty;
 public class AutoChallengeGameServiceEndpoint {
 	
 	private static final int LISTVIEW_IMAGE_SQUARE_SIZE = 80;
+	
+	private AutoChallengeGameEndpoint gameEndpoint;
 
 	@ApiMethod(name = "createGame", httpMethod = "POST")
 	public AutoChallengeGame createGame() throws JSONException, IOException, InterruptedException {
@@ -58,7 +61,8 @@ public class AutoChallengeGameServiceEndpoint {
 	public AutoChallengeGame addPlayerToGame(
 			@Named("gameId")Long gameId, @Named("playerId")Long playerId ) {
 		
-		AutoChallengeGame game = getAutoChallengeGame(gameId);
+//		AutoChallengeGame game = getAutoChallengeGame(gameId);
+		AutoChallengeGame game = getGameEndpoint().getAutoChallengeGame( gameId );
 		
 		game.addPlayerToGame(playerId);
 		
@@ -70,10 +74,13 @@ public class AutoChallengeGameServiceEndpoint {
 	public AutoChallengeGame respondToChallengeWithUrl( 
 			@Named("gameId")Long gameId, 
 			@Named("playerId")Long playerId, 
-			@Named("url")String url ) throws IOException {
+			@Named("url")String url,
+			@Named("sourceurl") String sourceUrl,
+			@Named("sourcetitle") String sourceTitle ) throws IOException {
 		
-		AutoChallengeGame game = getAutoChallengeGame(gameId);
-		game.uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey(url, playerId);
+//		AutoChallengeGame game = getAutoChallengeGame(gameId);
+		AutoChallengeGame game = getGameEndpoint().getAutoChallengeGame( gameId );
+		game.uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey(url, sourceUrl, sourceTitle, playerId);
 
 		AutoChallengeGameEndpoint gameEndpoint = new AutoChallengeGameEndpoint();
 		return gameEndpoint.updateAutoChallengeGame(game);
@@ -87,12 +94,15 @@ public class AutoChallengeGameServiceEndpoint {
 		
 		List<ChallengeAndResponseInfo> challengesInfo = new ArrayList<ChallengeAndResponseInfo>();
 		
-		AutoChallengeGame game = getAutoChallengeGame(gameId);
+		AutoChallengeGameEndpoint gameEndpoint = new AutoChallengeGameEndpoint();
+		
+//		AutoChallengeGame game = getAutoChallengeGame(gameId);
+		AutoChallengeGame game = gameEndpoint.getAutoChallengeGame( gameId );
 		
 		for( Challenge oneChallenge : game.getChallenges() ) {
 			
 			ChallengeAndResponseInfo playerPhotoInfo = 
-					getInfoFromChallenge(oneChallenge, size);
+					getInfoFromChallenge(oneChallenge, game, size);
 			
 			if( playerId.equals(oneChallenge.getPlayerId()) ) {
 				if( 0 == oneChallenge.getPoints() ) {
@@ -114,7 +124,7 @@ public class AutoChallengeGameServiceEndpoint {
 			challengesInfo.add(playerPhotoInfo);
 		}
 		
-		AutoChallengeGameEndpoint gameEndpoint = new AutoChallengeGameEndpoint();
+//		AutoChallengeGameEndpoint gameEndpoint = new AutoChallengeGameEndpoint();
 		gameEndpoint.updateAutoChallengeGame(game);
 		
 		return challengesInfo;
@@ -127,7 +137,7 @@ public class AutoChallengeGameServiceEndpoint {
 		Map<String, String> requestHeaderProperty = new HashMap<String, String>();
 		requestHeaderProperty.put( "Authorization", "Basic OlpGeDI1Wmh1c0lUTGVPZ3JTd2FLSzhzTVVoUlJ4cGxPSjMvME10NGcvdWs=" );
 		String queryUrl = "https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27"
-							+ query + "%27&Adult=%27Off%27&$format=json";
+							+ query + "%27&$format=json";
 		String resultString = getStringFromUrl( queryUrl, requestHeaderProperty );
 		JSONObject queryResponse = new JSONObject( resultString );
 		
@@ -143,6 +153,8 @@ public class AutoChallengeGameServiceEndpoint {
 					imageSearchResult.setFullSizeImageUrl( oneImageResult.getString( "MediaUrl" ) );
 					imageSearchResult.setThumbnailUrl( oneImageResult.getJSONObject( "Thumbnail" ).getString( "MediaUrl" ) );
 					imageSearchResult.setAltText( oneImageResult.getString( "Title" ) );
+					imageSearchResult.setSourceUrl( oneImageResult.getString( "SourceUrl" ) );
+					imageSearchResult.setSourceTitle( oneImageResult.getString( "Title" ) );
 					imageSearchResults.add( imageSearchResult );
 				}
 			}
@@ -157,7 +169,9 @@ public class AutoChallengeGameServiceEndpoint {
 		List<ChallengeAndResponseInfo> challengesInfo = new ArrayList<ChallengeAndResponseInfo>();
 		List<Challenge> queryResults = null;
 		
-		PersistenceManager pm = getPersistenceManager();
+//		PersistenceManager pm = getPersistenceManager();
+//		PersistenceManager pm = AutoChallengeGameEndpoint.getPersistenceManager();
+		PersistenceManager pm = getGameEndpoint().getPersistenceManager();
 		Query q = pm.newQuery(Challenge.class);
 		q.setFilter("playerId == playerIdParam");
 		q.declareParameters("Long playerIdParam");
@@ -190,21 +204,22 @@ public class AutoChallengeGameServiceEndpoint {
 	 * @return The entity with primary key id.
 	 */
 	@ApiMethod(name = "getAutoChallengeGame", path="get_game", httpMethod = HttpMethod.GET)
-	public AutoChallengeGame getAutoChallengeGame(@Named("id") Long id) {
-		PersistenceManager mgr = getPersistenceManager();
-		AutoChallengeGame autochallengegame = null;
-		try {
-			autochallengegame = mgr.getObjectById(AutoChallengeGame.class, id);
-			// let's eagerly fetch all challenges before closing the connection
-			for( Challenge oneChallenge : autochallengegame.getChallenges() )
-				;
-		} finally {
-			mgr.close();
-		}
-		return autochallengegame;
-	}
-	
-	
+//	public AutoChallengeGame getAutoChallengeGame(@Named("id") Long id) {
+////		PersistenceManager mgr = getPersistenceManager();
+//		PersistenceManager mgr = AutoChallengeGameEndpoint.getPersistenceManager();
+//		AutoChallengeGame autochallengegame = null;
+//		try {
+//			autochallengegame = mgr.getObjectById(AutoChallengeGame.class, id);
+//			// let's eagerly fetch all challenges before closing the connection
+//			for( Challenge oneChallenge : autochallengegame.getChallenges() )
+//				;
+//			autochallengegame.getChallengeInfo();
+//		} finally {
+//			mgr.close();
+//		}
+//		return autochallengegame;
+//	}
+
 
 	private void setUrlsFromChallengeBlobsToChallengeInfo(
 			Challenge oneChallenge, ChallengeAndResponseInfo oneChallengeInfo, int size) {
@@ -220,13 +235,18 @@ public class AutoChallengeGameServiceEndpoint {
 		}
 	}
 	
-	private ChallengeAndResponseInfo getInfoFromChallenge( Challenge challenge, int size ) {
+	private ChallengeAndResponseInfo getInfoFromChallenge( Challenge challenge, AutoChallengeGame game, int size ) {
 		
 		ChallengeAndResponseInfo info = new ChallengeAndResponseInfo();
 		
 		setUrlsFromChallengeBlobsToChallengeInfo(challenge, info, size);
 		info.setScore( challenge.getPoints() );
 		info.setPlayerId( challenge.getPlayerId() );
+		
+		info.setChallengePhotoSourceUrl( game.getChallengeInfo().getChallengeProfileUrl() );
+		info.setChallengePhotoSourceTitle( game.getChallengeInfo().getChallengeOwnerName() );
+		info.setResponsePhotoSourceUrl( challenge.getResponseSourceUrl() );
+		info.setResponsePhotoSourceTitle( challenge.getResponseSourceTitle() );
 		
 		return info;
 	}
@@ -372,5 +392,14 @@ public class AutoChallengeGameServiceEndpoint {
 //				.append("</li>");
 		sb.append("</ul>");
 		return sb.toString();
+	}
+	
+	
+	
+	private AutoChallengeGameEndpoint getGameEndpoint() {
+		if( null == gameEndpoint ) {
+			gameEndpoint = new AutoChallengeGameEndpoint();
+		}
+		return gameEndpoint;
 	}
 }

@@ -89,22 +89,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "challengeendpoint.insertChallenge" : {
-      "path" : "challenge",
-      "httpMethod" : "POST",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.insertChallenge",
-      "request" : {
-        "body" : "autoTemplate(backendRequest)",
-        "bodyName" : "resource"
-      },
-      "response" : {
-        "body" : "autoTemplate(backendResponse)"
-      }
-    },
     "challengeendpoint.removeChallenge" : {
       "path" : "challenge/{id}",
       "httpMethod" : "DELETE",
@@ -124,6 +108,22 @@
       },
       "response" : {
         "body" : "empty"
+      }
+    },
+    "challengeendpoint.insertChallenge" : {
+      "path" : "challenge",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.ChallengeEndpoint.insertChallenge",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
       }
     }
   },
@@ -158,6 +158,12 @@
           "responseFileName" : {
             "type" : "string"
           },
+          "responseSourceUrl" : {
+            "type" : "string"
+          },
+          "responseSourceTitle" : {
+            "type" : "string"
+          },
           "points" : {
             "type" : "integer"
           }
@@ -180,14 +186,14 @@
           "name" : {
             "type" : "string"
           },
+          "parent" : {
+            "$ref" : "Key"
+          },
           "complete" : {
             "type" : "boolean"
           },
           "namespace" : {
             "type" : "string"
-          },
-          "parent" : {
-            "$ref" : "Key"
           }
         }
       },
@@ -235,6 +241,8 @@
           "$ref" : "CollectionResponse_Challenge"
         }
       },
+      "net.nemur.phosom.model.ChallengeEndpoint.removeChallenge" : {
+      },
       "net.nemur.phosom.model.ChallengeEndpoint.insertChallenge" : {
         "request" : {
           "$ref" : "Challenge"
@@ -242,8 +250,6 @@
         "response" : {
           "$ref" : "Challenge"
         }
-      },
-      "net.nemur.phosom.model.ChallengeEndpoint.removeChallenge" : {
       }
     }
   }

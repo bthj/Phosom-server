@@ -4,8 +4,15 @@ public class ChallengeAndResponseInfo {
 	
 	private Long parentGameId;
 	private Long playerId;
+	
 	private String challengePhotoUrl;
+	private String challengePhotoSourceUrl;
+	private String challengePhotoSourceTitle;
+	
 	private String responsePhotoUrl;
+	private String responsePhotoSourceUrl;
+	private String responsePhotoSourceTitle;
+	
 	private Integer score;
 	private String gameInfo;
 	private String playerName;
@@ -24,18 +31,45 @@ public class ChallengeAndResponseInfo {
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
 	}
+	
 	public String getChallengePhotoUrl() {
 		return challengePhotoUrl;
 	}
 	public void setChallengePhotoUrl(String challengePhotoUrl) {
 		this.challengePhotoUrl = challengePhotoUrl;
 	}
+	public String getChallengePhotoSourceUrl() {
+		return challengePhotoSourceUrl;
+	}
+	public void setChallengePhotoSourceUrl( String challengePhotoSourceUrl ) {
+		this.challengePhotoSourceUrl = challengePhotoSourceUrl;
+	}
+	public String getChallengePhotoSourceTitle() {
+		return challengePhotoSourceTitle;
+	}
+	public void setChallengePhotoSourceTitle( String challengePhotoSourceTitle ) {
+		this.challengePhotoSourceTitle = challengePhotoSourceTitle;
+	}
+	
 	public String getResponsePhotoUrl() {
 		return responsePhotoUrl;
 	}
 	public void setResponsePhotoUrl(String responsePhotoUrl) {
 		this.responsePhotoUrl = responsePhotoUrl;
 	}
+	public String getResponsePhotoSourceUrl() {
+		return responsePhotoSourceUrl;
+	}
+	public void setResponsePhotoSourceUrl( String responsePhotoSourceUrl ) {
+		this.responsePhotoSourceUrl = responsePhotoSourceUrl;
+	}
+	public String getResponsePhotoSourceTitle() {
+		return responsePhotoSourceTitle;
+	}
+	public void setResponsePhotoSourceTitle( String responsePhotoSourceTitle ) {
+		this.responsePhotoSourceTitle = responsePhotoSourceTitle;
+	}
+	
 	public Integer getScore() {
 		return score;
 	}
