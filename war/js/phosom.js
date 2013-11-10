@@ -167,6 +167,7 @@ $( document ).ready(function(){
 					html: 'Sending that picture failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
 						+respUrlSent.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
+				setTimeout( $.mobile.loading( 'hide' ), 5000 );
 			} else {
 			
 				console.log(respUrlSent);
@@ -445,16 +446,27 @@ $( document ).ready(function(){
 					
 					$oneDIV.append( $challengeDiv, $responseDiv );
 					
-					$scoreDiv.append( $('<h3/>',{'text':'Grade: ' + oneChallenge.score}) );
-					
-					if( oneChallenge.playerId == g_activeUser.key.id ) {
-						var $collapsibleSetDIV = $('<div/>', {'data-role': 'collapsible-set'});
-						var $collapsibleDIV = $('<div/>', {'data-role':'collapsible', 'data-collapsed':'true'});
-						$collapsibleDIV.append( $('<h3/>', {'text': 'Alternative scores'}) );
-						$collapsibleDIV.append( oneChallenge.extraScoreInfo );
-						$collapsibleSetDIV.append( $collapsibleDIV );
-						$scoreDiv.append( $collapsibleSetDIV );
+					var similarityPercentage = Math.round((oneChallenge.score/1000)*100);
+					var gradingText = 'Phosie is ' + Math.round((oneChallenge.score/1000)*100) + '% happy with the photo you have chosen';
+					if( similarityPercentage <= 30 ) {
+						gradingText += ' :\'(';
+					} else if( similarityPercentage <= 50 ) {
+						gradingText += ' :-(';
+					} else if( similarityPercentage >= 80 ) {
+						gradingText += ' :-D';
+					} else {
+						gradingText += ' :-)';
 					}
+					$scoreDiv.append( $('<h3/>',{'text': gradingText}) );
+					
+//					if( oneChallenge.playerId == g_activeUser.key.id ) {
+//						var $collapsibleSetDIV = $('<div/>', {'data-role': 'collapsible-set'});
+//						var $collapsibleDIV = $('<div/>', {'data-role':'collapsible', 'data-collapsed':'true'});
+//						$collapsibleDIV.append( $('<h3/>', {'text': 'Alternative scores'}) );
+//						$collapsibleDIV.append( oneChallenge.extraScoreInfo );
+//						$collapsibleSetDIV.append( $collapsibleDIV );
+//						$scoreDiv.append( $collapsibleSetDIV );
+//					}
 					$oneDIV.append( $scoreDiv );
 					
 					$oneLI.append( $oneDIV );
