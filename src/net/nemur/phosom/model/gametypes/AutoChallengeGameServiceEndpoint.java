@@ -260,6 +260,7 @@ public class AutoChallengeGameServiceEndpoint {
 	private String getServingUrlFromBlobKey(BlobKey blobKey, int size) {
 		String url;
 		ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
+		if( size > 1600 ) size = 1600;
 		options.imageSize( size );
 		options.crop(false);
 		options.secureUrl(true);

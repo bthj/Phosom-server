@@ -43,27 +43,6 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
-    "gameendpoint.removeGame" : {
-      "path" : "game/{id}",
-      "httpMethod" : "DELETE",
-      "authLevel" : "NONE",
-      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
-      "audiences" : [ ],
-      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
-      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.removeGame",
-      "request" : {
-        "parameters" : {
-          "id" : {
-            "type" : "int64",
-            "required" : true
-          }
-        },
-        "body" : "empty"
-      },
-      "response" : {
-        "body" : "empty"
-      }
-    },
     "gameendpoint.listGame" : {
       "path" : "game",
       "httpMethod" : "GET",
@@ -87,6 +66,27 @@
       },
       "response" : {
         "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "gameendpoint.removeGame" : {
+      "path" : "game/{id}",
+      "httpMethod" : "DELETE",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.GameEndpoint.removeGame",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "empty"
       }
     },
     "gameendpoint.updateGame" : {
@@ -246,12 +246,12 @@
           "$ref" : "Game"
         }
       },
-      "net.nemur.phosom.model.GameEndpoint.removeGame" : {
-      },
       "net.nemur.phosom.model.GameEndpoint.listGame" : {
         "response" : {
           "$ref" : "CollectionResponse_Game"
         }
+      },
+      "net.nemur.phosom.model.GameEndpoint.removeGame" : {
       },
       "net.nemur.phosom.model.GameEndpoint.updateGame" : {
         "request" : {

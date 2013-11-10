@@ -112,7 +112,7 @@ $( document ).ready(function(){
 			if( game.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'An error came up while joining the game.<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+game.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 				
@@ -140,7 +140,7 @@ $( document ).ready(function(){
 			if( game.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'An error came up while looking up that game.<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+game.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 
@@ -165,7 +165,7 @@ $( document ).ready(function(){
 			if( respUrlSent.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'Sending that picture failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+respUrlSent.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 			
@@ -198,7 +198,7 @@ $( document ).ready(function(){
 			if( searchResults.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'That search for photos failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong>', 
+						+searchResults.error.message+'</strong>', 
 					textVisible:true, textonly: true} );
 				setTimeout( $.mobile.loading( 'hide' ), 3000 );
 			} else {
@@ -269,7 +269,7 @@ $( document ).ready(function(){
 			if( playerAddedResp.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'Joining with the game failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+playerAddedResp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 			
@@ -342,7 +342,7 @@ $( document ).ready(function(){
 			if( urlResp.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'Fetching the challenge failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+urlResp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 
@@ -407,7 +407,7 @@ $( document ).ready(function(){
 			if( challengesInfo.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'Fetching the results failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+challengesInfo.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 
@@ -510,7 +510,7 @@ $( document ).ready(function(){
 			if( challengesInfo.error ) {
 				$.mobile.loading( 'show', { 
 					html: 'Fetching the list of played challenges failed :\'(<br />If you\'d like you can email this message<br/>to the phosies at nemur@nemur.net:<br/><br/><strong>'
-						+resp.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
+						+challengesInfo.error.message+'</strong><br/><br/><a href="/">Try again...</a>', 
 					textVisible:true, textonly: true} );
 			} else {
 
