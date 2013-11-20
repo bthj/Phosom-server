@@ -8,6 +8,10 @@
 		<servlet-class>net.nemur.phosom.ImageServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>UploadHandler</servlet-name>
+		<servlet-class>net.nemur.phosom.UploadHandlerServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>SystemServiceServlet</servlet-name>
 		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
 		<init-param>
@@ -23,6 +27,10 @@
 	<servlet-mapping>
 		<servlet-name>ImageServlet</servlet-name>
 		<url-pattern>/image-service/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>UploadHandler</servlet-name>
+		<url-pattern>/upload</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SystemServiceServlet</servlet-name>

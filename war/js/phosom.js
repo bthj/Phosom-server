@@ -100,6 +100,13 @@ $( document ).ready(function(){
 		return false;
 	});
 	
+	$('#respond-with-upload').submit(function(){
+		
+		
+		
+		return false;
+	});
+	
 	$('#form-game-join').submit(function(){
 		$.mobile.loading( 'show', { text: 'Joining game...', textVisible:true});
 		
@@ -220,40 +227,7 @@ $( document ).ready(function(){
 				$.mobile.loading( 'hide' );
 			}
 		});
-/*
-        $.ajax({
-            type: 'GET',
-            url: 'https://api.datamarket.azure.com/Bing/Search/v1/Composite?Sources=%27image%27&Query=%27'+query+'%27&Adult=%27On%27',
-            dataType: "json", 
-            context: this,
-            beforeSend: function(xhr){
-                // base64 encoded: ignore:key
-            	// as in http://social.msdn.microsoft.com/Forums/windowsazure/en-us/9f085915-81b6-488d-a348-1c3ca769d44f/migrating-to-windows-azure-bing-search-api-with-jquery-jsonp?forum=DataMarket
-            	// and https://datamarket.azure.com/dataset/explore/bing/search
-                xhr.setRequestHeader('Authorization', 'Basic OlpGeDI1Wmh1c0lUTGVPZ3JTd2FLSzhzTVVoUlJ4cGxPSjMvME10NGcvdWs=');
-            },
-            success: function(data,status){
-            	
-            	if( data.d !== undefined ) {
-            		var $gallery = $this.siblings('.gallery').first().empty();
-            		$.each(data.d.results, function(index, result){
-            			$.each(result.Image, function(index2, image){
-            				// <li><a href="images/full/001.jpg" rel="external"><img src="images/thumb/001.jpg" alt="Image 001" /></a></li>
-//            				var $li = $('<li/>');
-            				var $a = $('<a/>', {'href':image.MediaUrl, 'rel':'external', 'style':'padding:5px;'})
-            							.on('click', respondWithUrlFromLink);
-            				var $img = $('<img/>', {'src':image.Thumbnail.MediaUrl, 'alt':image.Title});
-            				$a.append( $img );
-//            				$li.append( $a );
-            				$gallery.append( $a );
-            			});
-            		});
-            		//var photoswipe = $gallery.find('a').photoSwipe({ enableMouseWheel: false , enableKeyboard: false });
-            	}
-            	$.mobile.loading( 'hide' );
-            }
-        });
-*/
+
         return false;
 	});
 	
@@ -560,6 +534,10 @@ $( document ).ready(function(){
 
 // cloud endpoint things
 
+function afterEndpointInit() {
+	
+}
+
 function endpointinit() {
 	$.mobile.loading( 'show', { text: 'Phone home...', textVisible:true});
 	var apisToLoad;
@@ -572,6 +550,8 @@ function endpointinit() {
 				g_allAPIsLoaded = true;
 				$.mobile.loading( 'hide' );
 			});
+		
+			afterEndpointInit();
 			
 			// TODO: signing things... see https://developers.google.com/appengine/docs/java/endpoints/consume_js
 		}
@@ -579,8 +559,9 @@ function endpointinit() {
 	
 	apisToLoad = 4;
 	
-	var ENDPOINT_ROOT = '//' + window.location.host + '/_ah/api';
+	// var ENDPOINT_ROOT = '//' + window.location.host + '/_ah/api';
 	//var ENDPOINT_ROOT = 'https://phosom-server.appspot.com' + '/_ah/api';
+	var ENDPOINT_ROOT = 'https://gcdc2013-phosom.appspot.com' + '/_ah/api';
 	gapi.client.load('playerfactory', 'v1', callback, ENDPOINT_ROOT);
 	gapi.client.load('autochallengegameendpoint', 'v1', callback, ENDPOINT_ROOT);
 	gapi.client.load('autoChallengeGameService', 'v1', callback, ENDPOINT_ROOT);

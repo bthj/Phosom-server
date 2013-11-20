@@ -88,8 +88,10 @@
 					</div>
 					<div data-role="collapsible">
 						<h3>Upload a response image</h3>
-						<label for="file">Image file (TODO):</label>
-						<input type="file" name="image" id="image" value="">
+						<form action="/upload" method="post" id="respond-with-upload">
+							<label for="file">Image file (TODO):</label>
+							<input type="file" name="image" id="image" value="">
+						</form>
 					</div>
 				</div>
 			</div>

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.inject.Named;
 import javax.jdo.PersistenceManager;
@@ -22,6 +23,7 @@ import net.nemur.phosom.model.ImageSearchResult;
 import net.nemur.phosom.model.PMF;
 import net.nemur.phosom.model.Player;
 import net.nemur.phosom.model.PlayerEndpoint;
+import net.nemur.phosom.util.BlobUtil;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -32,6 +34,9 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.blobstore.UploadOptions;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ImagesServiceFailureException;
 import com.google.appengine.api.images.ServingUrlOptions;
@@ -41,6 +46,7 @@ import com.google.appengine.api.utils.SystemProperty;
 // TODO: add client ID verification http://cloud-endpoints-slides.appspot.com/gdl_2012_08_08.html#8
 @Api(name = "autoChallengeGameService", version = "v1")
 public class AutoChallengeGameServiceEndpoint {
+	private static final Logger log = Logger.getLogger(AutoChallengeGameServiceEndpoint.class.getName());
 	
 	private static final int LISTVIEW_IMAGE_SQUARE_SIZE = 80;
 	
@@ -86,6 +92,17 @@ public class AutoChallengeGameServiceEndpoint {
 		return gameEndpoint.updateAutoChallengeGame(game);
 	}
 	
+	@ApiMethod(name = "getUploadUrl", path="get_upload_url", httpMethod = HttpMethod.GET)
+	public Map<String, String> getUploadUrl() {
+		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+		UploadOptions uploadOptions = UploadOptions.Builder.withGoogleStorageBucketName( 
+				BlobUtil.BUCKET_NAME_CHALLENGE_RESPONSES );
+		Map<String, String> uploadUrl = new HashMap<String, String>();
+		uploadUrl.put( "uploadUrl", 
+				blobstoreService.createUploadUrl( BlobUtil.UPLOAD_HANDLER_URL, uploadOptions ) );
+		return uploadUrl; 
+	}
+	
 	@ApiMethod(name = "getChallengeAndResponseInfo", path="get_challenge_and_response_info", httpMethod = HttpMethod.GET)
 	public List<ChallengeAndResponseInfo> getChallengeAndResponseInfo(
 			@Named("gameId") Long gameId, 
@@ -109,10 +126,9 @@ public class AutoChallengeGameServiceEndpoint {
 					// if zero points / score, let's assume it hasn't been calculated, but
 					//  it can indeed have been calculated as zero but then we'll just calculate again
 					setScoreFromImageUrls(
-							playerPhotoInfo.getChallengePhotoUrl(), 
-							playerPhotoInfo.getResponsePhotoUrl(),
+							getServingUrlFromBlobKey( oneChallenge.getAssignmentBlobKey(), 600 ),
+							getServingUrlFromBlobKey( oneChallenge.getResponseBlobKey(), 600 ),
 							playerPhotoInfo);
-//					playerPhotoInfo.setScore( score ); // to be returned here
 					oneChallenge.setPoints(playerPhotoInfo.getScore()); // to be saved along with the game
 				}
 			} else {
@@ -267,17 +283,18 @@ public class AutoChallengeGameServiceEndpoint {
 		try {
 			url = ImagesServiceFactory.getImagesService().getServingUrl(options);
 		} catch( ImagesServiceFailureException e ) {
-			url = "";
+			url = e.getMessage();
 			// TODO: log...
 		} catch( IllegalArgumentException e ) { 
 			// happens if the blob that the key points to doesn't exist
-			url = "";
+			url = e.getMessage();
 		}
 		return url;
 	}
 	
 	// TODO:  cloned from AutoChallengeGame - merge!
 	private String getStringFromUrl( String url, Map<String, String> requestProperties ) throws MalformedURLException, IOException {
+		log.info( "Getting string from URL: " + url );
 		StringBuilder stringBuilder = new StringBuilder();
 		URL restUrl = new URL(url);
 		HttpURLConnection httpConn = (HttpURLConnection) restUrl.openConnection();
@@ -304,7 +321,7 @@ public class AutoChallengeGameServiceEndpoint {
 	private String getImageAnalysisUrlString( String url1, String url2 ) {
 		String host; // TODO: from config...
 		if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
-			host = "http://image.phosom.nemur.net";
+			host = "http://image.phosom.nemur.net:8080";
 		} else {
 			host = "http://localhost:8080/pia";
 		}
@@ -314,7 +331,6 @@ public class AutoChallengeGameServiceEndpoint {
 			String url1, String url2, ChallengeAndResponseInfo photoInfo ) throws JSONException, IOException {
 		int score = 0;
 		if( null != url1 && null != url2 ) {
-//			URL analysisUrl = new URL( getImageAnalysisUrlString(url1, url2) );
 			JSONObject similarityResult = new JSONObject( 
 					getStringFromUrl( getImageAnalysisUrlString(url1, url2), null ) );
 //					IOUtils.toString(analysisUrl, "ISO-8859-1") );

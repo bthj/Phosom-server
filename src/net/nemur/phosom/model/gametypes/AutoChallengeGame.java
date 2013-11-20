@@ -50,6 +50,7 @@ import net.nemur.phosom.ImageServlet;
 import net.nemur.phosom.auxiliary.CachePhosom;
 import net.nemur.phosom.model.Challenge;
 import net.nemur.phosom.model.Game;
+import net.nemur.phosom.util.BlobUtil;
 import net.sf.jsr107cache.Cache;
 
 //@PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -58,8 +59,7 @@ import net.sf.jsr107cache.Cache;
 public class AutoChallengeGame extends Game {
 	private static final Logger log = Logger.getLogger(AutoChallengeGame.class.getName());
 	
-	public final String BUCKET_NAME_AUTO_CHALLENGE = "auto-challenge-photos";
-	public final String BUCKET_NAME_CHALLENGE_RESPONSES = "challenge-response-photos";
+	
 	
 	private static final String FLICKR_API_KEY = "0cc84fc9654aaeca27ce2ee40a0cf574"; // TODO: environment variable or something!
 	private static final int IMAGE_SIZE_ONE_DIMENSION = 600;
@@ -130,7 +130,7 @@ public class AutoChallengeGame extends Game {
 			challenge.setPlayerId(playerId);
 			
 			challenge.setAssignmentBlobKey(getChallengePhotoBlobKey());
-			challenge.setAssignmentBucketName(BUCKET_NAME_AUTO_CHALLENGE);
+			challenge.setAssignmentBucketName(BlobUtil.BUCKET_NAME_AUTO_CHALLENGE);
 			challenge.setAssignmentFileName(getChallengeFileName());
 			
 			getChallenges().add(challenge);
@@ -143,7 +143,8 @@ public class AutoChallengeGame extends Game {
 //		GcsFilename gcsFilename = new GcsFilename(BUCKET_NAME_AUTO_CHALLENGE, fileName);
 		
 		// set a key to the Cloud Storage containing the challenge photo
-		BlobKey blobKey = getBlobKeyFromBucketAndFileName( BUCKET_NAME_AUTO_CHALLENGE, fileName );
+		BlobKey blobKey = BlobUtil.getBlobKeyFromBucketAndFileName( 
+				BlobUtil.BUCKET_NAME_AUTO_CHALLENGE, fileName );
 		setChallengePhotoBlobKey(blobKey);
 		setChallengeFileName(fileName);
 		
@@ -158,19 +159,23 @@ public class AutoChallengeGame extends Game {
 //				gcsService.createOrReplace(gcsFilename, GcsFileOptions.getDefaultInstance());
 //		copy( httpConn.getInputStream(), Channels.newOutputStream(outputChannel) );
 		
-		uploadPhotoFromUrlToCloudStorage(getChallengeInfo().getChallengePhotoUrl(), BUCKET_NAME_AUTO_CHALLENGE, fileName);
+		uploadPhotoFromUrlToCloudStorage(
+				getChallengeInfo().getChallengePhotoUrl(), 
+				BlobUtil.BUCKET_NAME_AUTO_CHALLENGE, 
+				fileName );
 	}
 	
 	public void uploadResponsePhotoFromUrlToCloudStorageAndSetBlobKey( 
 			String url, String sourceUrl, String sourceTitle, Long playerId ) throws IOException {
 		String fileName = getFileNameFromUrlString( url );
 		
-		BlobKey blobKey = getBlobKeyFromBucketAndFileName(BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
+		BlobKey blobKey = BlobUtil.getBlobKeyFromBucketAndFileName(
+				BlobUtil.BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
 		
 		for( Challenge oneChallenge : getChallenges() ) {
 			if( playerId.equals(oneChallenge.getPlayerId()) ) {
 				oneChallenge.setResponseBlobKey(blobKey);
-				oneChallenge.setResponseBucketName(BUCKET_NAME_CHALLENGE_RESPONSES);
+				oneChallenge.setResponseBucketName(BlobUtil.BUCKET_NAME_CHALLENGE_RESPONSES);
 				oneChallenge.setResponseFileName(fileName);
 				oneChallenge.setResponseSourceUrl( sourceUrl );
 				oneChallenge.setResponseSourceTitle( sourceTitle );
@@ -178,7 +183,7 @@ public class AutoChallengeGame extends Game {
 			}
 		}
 		
-		uploadPhotoFromUrlToCloudStorage(url, BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
+		uploadPhotoFromUrlToCloudStorage(url, BlobUtil.BUCKET_NAME_CHALLENGE_RESPONSES, fileName);
 	}
 
 
@@ -212,13 +217,6 @@ public class AutoChallengeGame extends Game {
 		IOUtils.copy(photoInputStream, photoOutputStream);
 		IOUtils.closeQuietly(photoInputStream);
 		IOUtils.closeQuietly(photoOutputStream);
-	}
-	
-	private BlobKey getBlobKeyFromBucketAndFileName( String bucketName, String fileName ) {
-		BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-		BlobKey blobKey = blobstoreService.createGsBlobKey( 
-				"/gs/" + bucketName + "/" + fileName );
-		return blobKey;
 	}
 	
 	

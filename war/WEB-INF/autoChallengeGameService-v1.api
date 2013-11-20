@@ -1,12 +1,12 @@
 {
   "extends" : "thirdParty.api",
   "abstract" : false,
-  "root" : "https://phosom-server.appspot.com/_ah/api",
+  "root" : "https://gcdc2013-phosom.appspot.com/_ah/api",
   "name" : "autoChallengeGameService",
   "version" : "v1",
   "defaultVersion" : false,
   "adapter" : {
-    "bns" : "https://phosom-server.appspot.com/_ah/spi",
+    "bns" : "https://gcdc2013-phosom.appspot.com/_ah/spi",
     "deadline" : 10.0,
     "type" : "lily"
   },
@@ -128,6 +128,21 @@
         "body" : "autoTemplate(backendResponse)"
       }
     },
+    "autoChallengeGameService.getUploadUrl" : {
+      "path" : "get_upload_url",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.getUploadUrl",
+      "request" : {
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
     "autoChallengeGameService.createGame" : {
       "path" : "createGame",
       "httpMethod" : "POST",
@@ -187,12 +202,6 @@
             "items" : {
               "$ref" : "Challenge"
             }
-          },
-          "BUCKET_NAME_AUTO_CHALLENGE" : {
-            "type" : "string"
-          },
-          "BUCKET_NAME_CHALLENGE_RESPONSES" : {
-            "type" : "string"
           },
           "challengeInfo" : {
             "$ref" : "ChallengeInfo"
@@ -388,6 +397,10 @@
             }
           }
         }
+      },
+      "JsonMap" : {
+        "id" : "JsonMap",
+        "type" : "object"
       }
     },
     "methods" : {
@@ -409,6 +422,11 @@
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.searchForImagesAtBing" : {
         "response" : {
           "$ref" : "ImageSearchResultCollection"
+        }
+      },
+      "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.getUploadUrl" : {
+        "response" : {
+          "$ref" : "JsonMap"
         }
       },
       "net.nemur.phosom.model.gametypes.AutoChallengeGameServiceEndpoint.createGame" : {
